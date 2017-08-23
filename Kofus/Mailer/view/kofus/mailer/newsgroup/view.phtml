@@ -1,0 +1,45 @@
+<div class="row">
+
+	<div class="col-md-12">
+	   <h1><?php echo $this->translate('Newsgroup') ?> "<?php echo $this->escapeHtml($this->entity->getTitle()) ?>"</h1>
+    </div>
+    <div class="col-md-9">
+        <?php if ($this->subscriptions) : ?>
+            <table class="table">
+                <tbody>
+                    <?php foreach ($this->subscriptions as $subscription) : ?>
+                        <tr>
+                            <td>
+                                <?php echo $this->escapeHtml($subscription->getEmailAddress()) ?>
+                            </td>
+                            <td>
+                                <?php echo $this->escapeHtml($subscription->getName()) ?>
+                            </td>
+                            <td>
+                                <?php echo $this->dateFormat($subscription->getTimestampCreated(), \IntlDateFormatter::SHORT) ?>
+                            </td>
+                        </tr>
+                    <?php endforeach ?>
+                </tbody>
+            </table>
+        <?php else : ?>
+            <p><?php echo $this->translate('No entries.') ?></p>
+        <?php endif ?>
+    </div>
+    <div class="col-md-3">
+		  <div class="list-group">
+		      <a href="<?php echo $this->urlBack() ?>" class="list-group-item">
+		          <?php echo $this->translate('Close') ?>
+		      </a>
+		      <a href="<?php echo $this->url('kofus_system', array('controller' => 'node', 'action' => 'edit', 'id' => $this->entity->getNodeId()), true) ?>" class="list-group-item">
+		          <span class="glyphicon glyphicon-pencil"></span>
+		          <?php echo $this->translate('Edit') ?>
+		      </a>
+		      <a href="<?php echo $this->url('kofus_system', array('controller' => 'node', 'action' => 'add', 'id' => 'SUBSCR'), true) ?>" class="list-group-item">
+		          <span class="glyphicon glyphicon-plus"></span>
+		          <?php echo sprintf($this->translate('Add %s'), $this->translate('Subscriber')) ?>
+		      </a>
+		      
+		  </div>
+    </div>
+</div>

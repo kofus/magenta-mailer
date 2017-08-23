@@ -1,0 +1,40 @@
+<h1>Mailings</h1>
+<div class="row">
+	<div class="col-md-9">
+        <?php if ($this->entities) : ?>
+        	<table class="table table-hover">
+        	   <thead>
+        	       <tr>
+            	       <th>Newsgroup</th>
+            	       <th>Template</th>
+          	       </tr>
+        	   </thead>
+        	   <tbody data-link="row" class="rowlink">
+        		<?php foreach ($this->entities as $entity) : ?>
+        			<tr>
+        			     <td>
+        				    <a href="/mailer/mailing/view/<?php echo $this->escapeHtmlAttr($entity->getDataId()) ?>">
+        				        <?php echo $this->escapeHtml($entity->getNewsgroup()) ?>
+        				    </a>
+        			     </td>
+        			     <td>
+        			         <?php echo $this->escapeHtml($entity->getTemplate()) ?>
+        			     </td>
+        				</tr>			
+        		<?php endforeach ?>
+        		</tbody>
+        	</table>
+        <?php else : ?>
+            <p>Keine Einträge.</p>
+        <?php endif ?>
+        
+    </div>
+    <div class="col-md-3">
+		  <div class="list-group">
+		      <a href="/data/item/add/mailing" class="list-group-item">
+		          <span class="glyphicon glyphicon-plus"></span>
+		          Hinzufügen
+		      </a>
+		  </div>
+    </div>
+</div>

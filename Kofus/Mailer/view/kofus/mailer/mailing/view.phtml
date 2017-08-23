@@ -1,0 +1,20 @@
+<h1>Mailing</h1>
+<div class="row">
+	<div class="col-md-9">
+	   <h1><?php echo $this->escapeHtml($this->entity->getTemplate()->getSubject()) ?></h1>
+	   <iframe style="width: 100%; min-height: 700px" src="/mailer/template/preview/<?php echo $this->entity->getTemplate()->getDataId() ?>"></iframe>
+    </div>
+    <div class="col-md-3">
+		  <div class="list-group">
+		      <a href="/mailer/mailing/run/<?php echo $this->entity->getDataId() ?>" class="list-group-item">
+		          <span class="glyphicon glyphicon-send"></span>
+		          Ausführen
+		      </a>
+		      <a href="/data/item/edit/<?php echo $this->escapeHtmlAttr($this->entity->getTemplate()->getDataId()) ?>" class="list-group-item">
+		          <span class="glyphicon glyphicon-send"></span>
+		          Template bearbeiten
+		      </a>
+		      
+		  </div>
+    </div>
+</div>
