@@ -1,0 +1,25 @@
+<?php echo $this->nodeNavigation('NCH', 'list')->render() ?>
+
+<?php if ($this->paginator->count()) : ?>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+            </tr>
+        </thead>
+        <tbody class="rowlink" data-link="row">
+            <?php foreach ($this->paginator as $entity) : ?>
+                <tr <?php if (! $entity->isEnabled()) echo 'class="danger"' ?>>
+                    <td>
+                        <a href="<?php echo $this->url('kofus_system', array('controller' => 'node', 'action' => 'edit', 'id' => $entity->getNodeId())) ?>">
+	                        <?php echo $this->escapeHtml($entity->getTitle()) ?>
+	                    </a>
+                    </td>
+                </tr>
+            <?php endforeach ?>
+        </tbody>
+    </table>
+    <?php echo $this->paginationControl() ?>
+<?php else : ?>
+    <p>Keine Einträge.</p>
+<?php endif ?>

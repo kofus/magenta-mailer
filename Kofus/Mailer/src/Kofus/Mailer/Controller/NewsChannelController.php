@@ -11,20 +11,11 @@ class NewsChannelController extends AbstractActionController
     public function listAction()
     {
         $this->archive()->uriStack()->push();
-    	$entities = $this->nodes()->getRepository('NCH')->findAll();
+        
+        $qb = $this->nodes()->createQueryBuilder('NCH');
+        $paginator = $this->paginator($qb);
     	return new ViewModel(array(
-    		'entities' => $entities
+    		'paginator' => $paginator
     	));
-    }
-    
-    public function viewAction()
-    {
-        $this->archive()->uriStack()->push();
-        $entity = $this->nodes()->getNode($this->params('id'), 'NEWSGROUP');
-        //$subscriptions = $this->nodes()->getRepository('SUBSCR')->findBy(array('newsgroup' => $entity), array('timestampCreated' => 'DESC'));
-        return new ViewModel(array(
-        	'entity' => $entity,
-          //  'subscriptions' => $subscriptions
-        ));
     }
 }

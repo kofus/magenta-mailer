@@ -3,7 +3,7 @@
 namespace Kofus\Mailer\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Kofus\System\Node\NodeInterface;
+use Kofus\System\Node;
 
 
 
@@ -11,7 +11,7 @@ use Kofus\System\Node\NodeInterface;
  * @ORM\Entity
  * @ORM\Table(name="kofus_mailer_channels")
  */
-class NewsChannelEntity implements NodeInterface
+class NewsChannelEntity implements Node\NodeInterface, Node\EnableableNodeInterface
 {
     /**
      * @ORM\Id
@@ -38,6 +38,18 @@ class NewsChannelEntity implements NodeInterface
 	public function getTitle()
 	{
 		return $this->title;
+	}
+	
+	/**
+	 * @ORM\Column(type="boolean")
+	 */
+	protected $enabled = true;
+	
+	public function isEnabled($boolean=null)
+	{
+	    if ($boolean !== null)
+	        $this->enabled = (bool) $boolean;
+	        return $this->enabled;
 	}
 	
 	public function getNodeType()

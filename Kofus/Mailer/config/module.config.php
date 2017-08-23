@@ -5,21 +5,20 @@ return array(
     
     'controllers' => array(
         'invokables' => array(
-            'Kofus\Mailer\Controller\Template' => 'Kofus\Mailer\Controller\TemplateController',
-            'Kofus\Mailer\Controller\Index' => 'Kofus\Mailer\Controller\IndexController',
-            'Kofus\Mailer\Controller\Newsgroup' => 'Kofus\Mailer\Controller\NewsgroupController',
-            'Kofus\Mailer\Controller\Subscription' => 'Kofus\Mailer\Controller\SubscriptionController'
+            'Kofus\Mailer\Controller\NewsChannel' => 'Kofus\Mailer\Controller\NewsChannelController',
+            'Kofus\Mailer\Controller\NewsSubscriber' => 'Kofus\Mailer\Controller\NewsSubscriberController',
+            
         )
     ),
     
     'translator' => array(
-    		'translation_file_patterns' => array(
-    				array(
-    						'type' => 'phpArray',
-    						'base_dir' => __DIR__ . '/../language',
-    						'pattern' => '%s.php'
-    				)
-    		),
+        'translation_file_patterns' => array(
+            array(
+                'type' => 'phpArray',
+                'base_dir' => __DIR__ . '/../language',
+                'pattern' => '%s.php'
+            )
+        )
     ),
     
     'doctrine' => array(
@@ -56,7 +55,7 @@ return array(
                     )
                 ),
                 'may_terminate' => true
-            )
+            ),
         )
     ),
     
@@ -76,26 +75,24 @@ return array(
         'module_layouts' => array(
             'Kofus\\Mailer' => 'kofus/layout/admin'
         )
-    )
-    ,
-    
-    'view_helpers' => array(
-    		'invokables' => array(
-    				'mailer' => 'Kofus\Mailer\View\Helper\MailerHelper'
-    		)
     ),
     
+    'view_helpers' => array(
+        'invokables' => array(
+            'mailer' => 'Kofus\Mailer\View\Helper\MailerHelper'
+        )
+    ),
     
     'controller_plugins' => array(
         'invokables' => array(
             'mailer' => 'Kofus\Mailer\Controller\Plugin\MailerPlugin'
         )
-    ),
-    
-    'user' => array(
-	   'controller_mappings' => array(
-    	   'Kofus\Mailer\Controller\Index' => 'System'
     )
-)
-)
-;
+    /*
+ * 'user' => array(
+ * 'controller_mappings' => array(
+ * 'Kofus\Mailer\Controller\Index' => 'System'
+ * )
+ * )
+ */
+);

@@ -8,6 +8,8 @@ use Kofus\Mailer\Entity\NewsgroupEntity;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
+use Kofus\Mailer\Entity\NewsSubscriberEntity;
+use Kofus\Mailer\Entity\NewsSubscriptionEntity;
 
 
 class MailerService extends AbstractService implements EventManagerAwareInterface
@@ -33,6 +35,23 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         $this->getEventManager()->trigger('beforeSend', $this, array($msg));
         $this->transport->send($msg);
         $this->getEventManager()->trigger('send', $this, array($msg));
+    }
+    
+    public function subscribe(NewsSubscriberEntity $subscriber, array $channels=array())
+    {
+        $this->em()->persist($subscriber);
+        $token = \Zend\Math\Rand::getString(32, 'abcdefghijklmnopqrstuvwxyz0123456789');
+        foreach ($channels as $channel) {
+            $subscription = $this->nodes()->getRepository('SCP')->findOneBy(array('channel' => $channel, 'subscriber' => $subscriber));
+            if (! $subscription) {
+                $subscription = new NewsSubscriptionEntity();
+                $subscription->setSubscriber($subscriber);
+                $subscription->setChannel($channel);
+            }
+            $subscription->setActivationToken($token);
+            $this->em()->persist($subscription);
+        }
+        $this->em()->flush();
     }
     
     
