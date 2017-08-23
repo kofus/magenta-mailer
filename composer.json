@@ -1,0 +1,12 @@
+{
+    "name": "kofus/magenta-mailer",
+    "type": "library",
+    
+    "autoload": {
+        "psr-0": {
+            "Kofus\\Mailer\\": "src/Kofus/Mailer/"
+        },
+        "classmap" : ["Kofus/Mailer/Module.php"]
+    }
+}
+
