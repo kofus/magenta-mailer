@@ -10,6 +10,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
 use Kofus\Mailer\Entity\NewsSubscriberEntity;
 use Kofus\Mailer\Entity\NewsSubscriptionEntity;
+use Kofus\Mailer\Entity\NewsEntity;
 
 
 class MailerService extends AbstractService implements EventManagerAwareInterface
@@ -35,6 +36,49 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         $this->getEventManager()->trigger('beforeSend', $this, array($msg));
         $this->transport->send($msg);
         $this->getEventManager()->trigger('send', $this, array($msg));
+    }
+    
+    public function renderMailHtmlBody(NewsEntity $entity, array $variables=array())
+    {
+        $templateName = $entity->getTemplate();
+        
+        // Renderer
+        $renderer = new \Zend\View\Renderer\PhpRenderer();
+        
+        // Add view helpers
+        $pluginManager = $renderer->getHelperPluginManager();
+        foreach ($this->config()->get('view_helpers.invokables') as $name => $invokableClass)
+            $pluginManager->setInvokableClass($name, $invokableClass);
+            $pluginManager->get('url')->setRouter($this->getServiceLocator()->get('Router'));
+            
+            // Resolver
+            $resolver = new \Zend\View\Resolver\TemplateMapResolver();
+            $map = array();
+            foreach ($this->config()->get('mailer.templates.available') as $name => $data)
+                $map[$name] = $data['base_uri'] . '/' . $data['filename'];
+                $resolver->setMap($map);
+                $renderer->setResolver($resolver);
+                
+                // Layout as view
+                $viewModel = new \Zend\View\Model\ViewModel();
+                $viewModel->setTemplate($templateName);
+                $viewModel->setVariables(array('content' => $entity->getContentHtml()));
+                
+                
+                // Add styles
+                $templateConfig = $this->config()->get('mailer.templates.available.' . $templateName, array());
+                if (isset($templateConfig['css'])) {
+                    $css = '';
+                    foreach ($templateConfig['css'] as $filename)
+                        $css .= file_get_contents($templateConfig['base_uri'] . '/' . $filename) . ' ';
+                        $renderer->getHelperPluginManager()->get('headStyle')->appendStyle($css);
+                }
+                
+                // Render html
+                $html = $renderer->render($viewModel);
+                
+                return $html;
+                
     }
     
     public function subscribe(NewsSubscriberEntity $subscriber, array $channels=array())

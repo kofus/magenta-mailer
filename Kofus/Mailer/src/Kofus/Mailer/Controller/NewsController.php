@@ -1,0 +1,44 @@
+<?php
+
+namespace Kofus\Mailer\Controller;
+
+use Zend\Mvc\Controller\AbstractActionController;
+use Zend\View\Model\ViewModel;
+
+
+class NewsController extends AbstractActionController
+{
+    public function listAction()
+    {
+        $this->archive()->uriStack()->push();
+        
+        $qb = $this->nodes()->createQueryBuilder('NS');
+        $paginator = $this->paginator($qb);
+    	return new ViewModel(array(
+    		'paginator' => $paginator
+    	));
+    }
+    
+    public function viewAction()
+    {
+        $this->archive()->uriStack()->push();
+        
+        $node = $this->nodes()->getNode($this->params('id'), 'NS');
+        
+        return new ViewModel(array(
+            'entity' => $node
+        ));
+    }
+    
+    public function previewAction()
+    {
+        $this->archive()->uriStack()->push();
+        $node = $this->nodes()->getNode($this->params('id'), 'NS');
+        
+        $html = $this->mailer()->renderMailHtmlBody($node);
+        
+        $response = $this->getResponse();
+        $response->setContent($html);
+        return $response;
+    }
+}

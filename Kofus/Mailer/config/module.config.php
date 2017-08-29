@@ -7,7 +7,7 @@ return array(
         'invokables' => array(
             'Kofus\Mailer\Controller\NewsChannel' => 'Kofus\Mailer\Controller\NewsChannelController',
             'Kofus\Mailer\Controller\NewsSubscriber' => 'Kofus\Mailer\Controller\NewsSubscriberController',
-            
+            'Kofus\Mailer\Controller\News' => 'Kofus\Mailer\Controller\NewsController',
         )
     ),
     
@@ -79,7 +79,8 @@ return array(
     
     'view_helpers' => array(
         'invokables' => array(
-            'mailer' => 'Kofus\Mailer\View\Helper\MailerHelper'
+            'mailer' => 'Kofus\Mailer\View\Helper\MailerHelper',
+            'imageBase64Source' => 'Kofus\Mailer\View\Helper\ImageBase64SourceHelper'
         )
     ),
     

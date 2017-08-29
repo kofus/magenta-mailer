@@ -5,27 +5,44 @@ return array(
     
     'nodes' => array(
         'enabled' => array(
-            'NCH', 'SCB', 'SCP'
+            'NCH', 'SCB', 'SCP', 'NS'
         ),
         'available' => array(
-            'MTMPL' => array(
-                'label' => 'Mail Template',
-                'entity' => 'Kofus\Mailer\Entity\TemplateEntity',
+            'NS' => array(
+                'label' => 'News',
+                'label_pl' => 'News',
+                'entity' => 'Kofus\Mailer\Entity\NewsEntity',
                 'controllers' => array(
-                    'Kofus\Mailer\Controller\Template',
-                    'Kofus\Archive\Controller\Mail'
+                    'Kofus\Mailer\Controller\News'
+                ),
+                'navigation' => array(
+                    'list' => array(
+                        'add' => array(
+                            'icon' => 'glyphicon glyphicon-plus',
+                            'label' => 'Add',
+                            'route' => 'kofus_system',
+                            'controller' => 'node',
+                            'action' => 'add',
+                            'params' => array(
+                                'id' => 'NS'
+                            )
+                        )
+                    )
                 ),
                 'form' => array(
                     'default' => array(
                         'fieldsets' => array(
                             'master' => array(
-                                'class' => 'Kofus\Mailer\Form\Fieldset\Template\MasterFieldset',
-                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Template\MasterHydrator'
+                                'class' => 'Kofus\Mailer\Form\Fieldset\News\MasterFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\News\MasterHydrator'
                             )
                         )
                     )
-                )
+                ),
+                
+                
             ),
+
             'NCH' => array(
                 'label' => 'News Channel',
                 'label_pl' => 'News Channels',
