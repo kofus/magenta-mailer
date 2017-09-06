@@ -127,7 +127,7 @@ class NewsEntity implements Node\NodeInterface, Node\EnableableNodeInterface
 	
 	public function __toString()
 	{
-		return $this->getTitle() . ' (' . $this->getNodeId() . ')';	
+		return $this->getSubject() . ' (' . $this->getNodeId() . ')';	
 	}
 }
 

@@ -1,0 +1,34 @@
+<?php echo $this->nodeNavigation('MJ', 'list')->render() ?>
+
+<?php if ($this->paginator->count()) : ?>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>News-Betreff</th>
+                <th>Channel</th>
+            </tr>
+        </thead>
+        <tbody class="rowlink" data-link="row">
+            <?php foreach ($this->paginator as $entity) : ?>
+                <tr>
+                    <td>
+                        <a href="<?php echo $this->url('kofus_mailer', array('controller' => 'job', 'action' => 'view', 'id' => $entity->getNodeId())) ?>">
+	                        <?php echo $this->escapeHtml($entity->getNews()->getSubject()) ?>
+	                    </a>
+                    </td>
+                    <td>
+                    	<?php
+                            $channels = array();
+                            foreach ($entity->getChannels() as $channel)
+                                $channels[] = $channel->getTitle();
+                            echo $this->escapeHtml(implode(', ', $channels));
+                    	?>
+                    </td>
+                </tr>
+            <?php endforeach ?>
+        </tbody>
+    </table>
+    <?php echo $this->paginationControl() ?>
+<?php else : ?>
+    <p>Keine Einträge.</p>
+<?php endif ?>

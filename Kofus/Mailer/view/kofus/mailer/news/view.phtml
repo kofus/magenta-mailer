@@ -1,8 +1,20 @@
 <div class="row">
-
     <div class="col-md-9">
-    	<h1><?php echo $this->escapeHtml($this->entity->getSubject()) ?></h1>
-    	<?php echo $this->entity->getContentHtml() ?>
+    	<h1><?php echo $this->escapeHtml($this->entity) ?></h1>
+    	
+    	<ul class="nav nav-tabs" role="tablist">
+    		<li class="active">
+    			<a href="#tab-preview" role="tab" data-toggle="tab">Vorschau</a>
+    		</li>
+    	</ul>
+    	<br>
+    	<div class="tab-content">
+    		<div role="tabpanel" class="tab-pane active" id="tab-preview">
+    			<iframe src="<?php echo $this->url('kofus_mailer', array('controller' => 'news', 'action' => 'preview', 'id' => $this->entity->getNodeId())) ?>" style="width: 100%; height: 400px">
+    			</iframe>
+    		</div>
+    	</div>
+    	
     	
     </div>
     <div class="col-md-3">
@@ -14,12 +26,10 @@
     	          <i class="glyphicon glyphicon-pencil"></i>
     	          <?php echo $this->translate('Edit') ?>
     	      </a>
-    	      <a href="<?php echo $this->url('kofus_mailer', array('controller' => 'news', 'action' => 'preview', 'id' => $this->entity->getNodeId()), array(), true) ?>" class="list-group-item" target="_blank">
-    	          <i class="glyphicon glyphicon-preview"></i>
-    	          Vorschau
+    	      <a href="<?php echo $this->url('kofus_mailer', array('controller' => 'news', 'action' => 'dispatch', 'id' => $this->entity->getNodeId()), array(), true) ?>" class="list-group-item">
+    	          <i class="glyphicon glyphicon-plus"></i>
+    	          Versandauftrag erstellen
     	      </a>
-    	      
     	  </div>
     </div>
-
 </div>

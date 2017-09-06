@@ -32,13 +32,22 @@ class NewsController extends AbstractActionController
     
     public function previewAction()
     {
-        $this->archive()->uriStack()->push();
         $node = $this->nodes()->getNode($this->params('id'), 'NS');
         
-        $html = $this->mailer()->renderMailHtmlBody($node);
+        $html = $this->mailer()->renderHtmlBody($node->getContentHtml());
         
         $response = $this->getResponse();
         $response->setContent($html);
         return $response;
+    }
+    
+    public function addtaskAction()
+    {
+        $node = $this->nodes()->getNode($this->params('id'), 'NS');
+        
+        
+        
+        return new ViewModel();
+        
     }
 }

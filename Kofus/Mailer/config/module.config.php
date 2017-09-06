@@ -8,6 +8,9 @@ return array(
             'Kofus\Mailer\Controller\NewsChannel' => 'Kofus\Mailer\Controller\NewsChannelController',
             'Kofus\Mailer\Controller\NewsSubscriber' => 'Kofus\Mailer\Controller\NewsSubscriberController',
             'Kofus\Mailer\Controller\News' => 'Kofus\Mailer\Controller\NewsController',
+            'Kofus\Mailer\Controller\Job' => 'Kofus\Mailer\Controller\JobController',
+            'Kofus\Mailer\Controller\Mail' => 'Kofus\Mailer\Controller\MailController',
+            
         )
     ),
     

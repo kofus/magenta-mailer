@@ -8,7 +8,7 @@ use Zend\Mime\Part as MimePart;
 use Zend\Mime\Message as MimeMessage;
 
 
-class IndexController extends AbstractActionController
+class DispatcherController extends AbstractActionController
 {
     public function systemmailAction()
     {

@@ -5,9 +5,82 @@ return array(
     
     'nodes' => array(
         'enabled' => array(
-            'NCH', 'SCB', 'SCP', 'NS'
+            'NCH', 'SCB', 'SCP', 'NS', 'MJ', 'ML'
         ),
         'available' => array(
+            'ML' => array(
+                'label' => 'Mail',
+                'label_pl' => 'Mails',
+                'entity' => 'Kofus\Mailer\Entity\MailEntity',
+                'controllers' => array(
+                    'Kofus\Mailer\Controller\Mail'
+                ),
+                'navigation' => array(
+                    'list' => array(
+                        'add' => array(
+                            'icon' => 'glyphicon glyphicon-plus',
+                            'label' => 'Add',
+                            'route' => 'kofus_system',
+                            'controller' => 'node',
+                            'action' => 'add',
+                            'params' => array(
+                                'id' => 'ML'
+                            )
+                        )
+                    )
+                ),
+                'form' => array(
+                    'default' => array(
+                        'fieldsets' => array(
+                            'master' => array(
+                                'class' => 'Kofus\Mailer\Form\Fieldset\Mail\MasterFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Mail\MasterHydrator'
+                            )
+                        )
+                    ),
+                ),
+            ),
+            'MJ' => array(
+                'label' => 'Job',
+                'label_pl' => 'Jobs',
+                'entity' => 'Kofus\Mailer\Entity\JobEntity',
+                'controllers' => array(
+                    'Kofus\Mailer\Controller\Job'
+                ),
+                'navigation' => array(
+                    'list' => array(
+                        'add' => array(
+                            'icon' => 'glyphicon glyphicon-plus',
+                            'label' => 'Add',
+                            'route' => 'kofus_system',
+                            'controller' => 'node',
+                            'action' => 'add',
+                            'params' => array(
+                                'id' => 'MJ'
+                            )
+                        )
+                    )
+                ),
+                'form' => array(
+                    'add' => array(
+                        'fieldsets' => array(
+                            'master' => array(
+                                'class' => 'Kofus\Mailer\Form\Fieldset\Job\AddFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Job\AddHydrator'
+                            )
+                        )
+                    ),
+                    'edit' => array(
+                        'fieldsets' => array(
+                            'master' => array(
+                                'class' => 'Kofus\Mailer\Form\Fieldset\Job\EditFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Job\EditHydrator'
+                            )
+                        )
+                    ),
+                ),
+                
+            ),
             'NS' => array(
                 'label' => 'News',
                 'label_pl' => 'News',
@@ -39,6 +112,10 @@ return array(
                         )
                     )
                 ),
+                'search_documents' => array(
+                    'Kofus\Mailer\Lucene\Document\NewsDocument'
+                ),
+                
                 
                 
             ),

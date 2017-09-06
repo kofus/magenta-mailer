@@ -15,17 +15,7 @@ use Kofus\Mailer\Entity\NewsEntity;
 
 class MailerService extends AbstractService implements EventManagerAwareInterface
 {
-    public function countSubscriptions(NewsgroupEntity $newsgroup)
-    {
-        return 1;
-        $qb = $this->em()->createQueryBuilder();
-        $qb->select($qb->expr()->count('s.id'))
-            ->from('Kofus\Mailer\Entity\SubscriptionEntity', 's')
-            ->where('s.newsgroups HAS :newsgroup')
-            ->setParameter('newsgroup', $newsgroup);
-        return $qb->getQuery()->getSingleScalarResult();
-    }
-    
+    /*
     protected $transport;
     
     protected function sendmail($msg)
@@ -36,12 +26,10 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         $this->getEventManager()->trigger('beforeSend', $this, array($msg));
         $this->transport->send($msg);
         $this->getEventManager()->trigger('send', $this, array($msg));
-    }
+    } */
     
-    public function renderMailHtmlBody(NewsEntity $entity, array $variables=array())
+    public function renderHtmlBody($markup, $template='default')
     {
-        $templateName = $entity->getTemplate();
-        
         // Renderer
         $renderer = new \Zend\View\Renderer\PhpRenderer();
         
@@ -61,12 +49,12 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
                 
                 // Layout as view
                 $viewModel = new \Zend\View\Model\ViewModel();
-                $viewModel->setTemplate($templateName);
-                $viewModel->setVariables(array('content' => $entity->getContentHtml()));
+                $viewModel->setTemplate($template);
+                $viewModel->setVariables(array('content' => $markup));
                 
                 
                 // Add styles
-                $templateConfig = $this->config()->get('mailer.templates.available.' . $templateName, array());
+                $templateConfig = $this->config()->get('mailer.templates.available.' . $template, array());
                 if (isset($templateConfig['css'])) {
                     $css = '';
                     foreach ($templateConfig['css'] as $filename)
@@ -94,72 +82,90 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
             }
             $subscription->setActivationToken($token);
             $this->em()->persist($subscription);
-        }
-        $this->em()->flush();
-    }
-    
-    
-    public function send(Mail\Message $msg, $newsgroup=null)
-    {
-        if ($newsgroup) {
-            if (is_string($newsgroup))
-                $newsgroup = $this->nodes()->getNode($newsgroup, 'NEWSGROUP');
-            $subscriptions = $this->nodes()->getRepository('SUBSCR')->findBy(array('newsgroup' => $newsgroup));
-            foreach ($subscriptions as $subscription) {
-                $msg->setTo($subscription->getEmailAddress(), $subscription->getName());
-                $this->sendmail($msg);
-            }
-        } else {
-            $this->sendmail($msg);
-        }
-        return $this;
-    }
-    
-    public function createMail($key='default', $template=null, array $values=array(), array $params=array())
-    {
-        $config = $this->config()->get('mailer.message.' . $key);
-        if (! $config)
-            throw new \Exception('Mail message "'.$key.'" not found in config');
-        
-        if (! isset($config['class']))
-            throw new \Exception('No class specification found for mail message "'.$key.'"');
-
-        // Create class
-        $classname = $config['class'];
-        $mail = new $classname();
-        if (! $mail instanceof \Kofus\Mailer\Mail\MailInterface)
-            throw new \Exception($classname . ' must implement MailInterface');
-        
-        // Merge values
-        if ($this->config()->get('mailer.values')) 
-            $values = array_merge($this->config()->get('mailer.values'), $values);
-        if (isset($config['values']))
-            $values = array_merge($config['values'], $values);
-        $mail->setValues($values);
-        
-        // Merge params
-        if ($this->config()->get('mailer.params')) 
-            $params = array_merge($this->config()->get('mailer.params'), $params);
-        if (isset($config['params']))
-            $params = array_merge($config['params'], $params);
-        $mail->setParams($params);
-        
-        // Template
-        if (! $template && isset($config['template']))
-            $template = $config['template'];
-        if ($template) {
-            $templateNode = $this->nodes()->getNode($template, 'MTMPL');
-            if (! $templateNode)
-                throw new \Exception('Mail template "'.$template.'" not found'); 
-            $mail->setTemplate($templateNode);
-        }
+            $this->em()->flush();
             
-        // ServiceLocator?
-        if ($mail instanceof ServiceLocatorAwareInterface)
-            $mail->setServiceLocator($this->getServiceLocator());
-        
-        return $mail;
+            // Send mail with activation link
+            $tokens = array('host' => $_SERVER['HTTP_HOST'], 'link' => $token);
+            $msg = $this->createHtmlMessage('<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>', $tokens);
+            $msg->setTo($subscriber->getEmailAddress());
+            $msg->setSubject('Ihre Newsletter-Anmeldung');
+            $this->send($msg);
+        }
     }
+    
+    public function createHtmlMessage($markup, array $tokens=array())
+    {
+        // Populate tokens
+        foreach ($tokens as $key => $value)
+            $markup = str_replace('{' . $key . '}', $value, $markup);
+            
+        // Render template
+        $markup = $this->renderHtmlBody($markup);
+            
+        $html = new \Zend\Mime\Part($markup);
+        $html->type = 'text/html';
+        $html->encoding = 'base64';
+        $html->charset = 'UTF-8';
+        
+        $body = new \Zend\Mime\Message();
+        $body->setParts(array($html));
+        
+        $msg = new \Zend\Mail\Message();
+        $msg->setBody($body);
+        
+        if ($this->config()->get('mailer.params.from'))
+            $msg->setFrom($this->config()->get('mailer.params.from'));
+        
+        return $msg;
+    }
+    
+    
+    
+    public function send($mixed)
+    {
+        if ($mixed instanceof \Kofus\Mailer\Entity\MailEntity) {
+            $entity = $mixed;
+            $msg = new \Zend\Mail\Message();
+            $msg->setEncoding($entity->getEncoding());
+            $msg->setSubject($entity->getSubject());
+            $msg->setHeaders($entity->getHeaders());
+            $msg->setBody($entity->getBody());
+            
+        } elseif ($mixed instanceof \Zend\Mail\Message) {
+            $msg = $mixed;
+        } else {
+            throw new \Exception('Cannot send object of type ' . get_class($mixed));
+        }
+        
+        $transport = new \Zend\Mail\Transport\Sendmail();
+        $transport->send($msg);
+    }
+    
+    public function enqueue(\Zend\Mail\Message $msg, \DateTime $scheduled=null, $entity=null)
+    {
+        if (! $entity)
+            $entity = new \Kofus\Mailer\Entity\MailEntity();
+        $entity->setEncoding($msg->getEncoding());
+        $entity->setSubject($msg->getSubject());
+        $entity->setHeaders($msg->getHeaders());
+        $entity->setBody($msg->getBody());
+        $entity->setBodyText($msg->getBodyText());
+        $entity->setTimestampCreated(new \DateTime());
+        
+        
+        if ($scheduled) {
+            $entity->setTimestampScheduled($scheduled);
+        } else {
+            $entity->setTimestampSent(new \DateTime());
+            $this->send($entity);
+        }
+        
+        $this->em()->persist($entity);
+        $this->em()->flush();
+        return $entity;
+    }
+    
+   
     
     protected $events;
     

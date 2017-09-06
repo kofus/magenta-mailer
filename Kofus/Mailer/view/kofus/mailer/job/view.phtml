@@ -1,0 +1,12 @@
+<h3>Adressaten</h3>
+<ul>
+<?php foreach ($this->entity->getSubscribers() as $subscriber) : ?>
+	<li><?php echo $subscriber ?></li>
+<?php endforeach ?>
+</ul>
+
+<?php if ($this->entity->getStatus() == 0) : ?>
+	<a href="<?php echo $this->url('kofus_mailer', array('controller' => 'job', 'action' => 'run', 'id' => $this->entity->getNodeId())) ?>" class="btn btn-danger">
+		Versand jetzt starten
+	</a>
+<?php endif ?>

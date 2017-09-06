@@ -17,9 +17,11 @@ class SubscribeHydrator implements HydratorInterface, ServiceLocatorAwareInterfa
 
 	public function hydrate(array $data, $object)
 	{
-	    $subscriber = $object;
-	    if (! $subscriber->getEmailAddress())
+	    $subscriber = $this->nodes()->getRepository('SCB')->findOneBy(array('emailAddress' => $data['email']));
+	    if (! $subscriber) {
+	        $subscriber = $this->nodes()->createNode('SCB');
 	        $subscriber->setEmailAddress($data['email']);
+	    }
 	    
 	    $channels = array();
 	    foreach ($data['channels'] as $channelId) {
@@ -29,7 +31,7 @@ class SubscribeHydrator implements HydratorInterface, ServiceLocatorAwareInterfa
 	    }
 	    $this->mailer()->subscribe($subscriber, $channels);
 	    
-	    return $object;
+	    return $subscriber;
 	}
 	
 	protected $sm;
