@@ -28,47 +28,62 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         $this->getEventManager()->trigger('send', $this, array($msg));
     } */
     
+    /**
+     * Render markup into template, supporting view helpers
+     * @param string $markup
+     * @param string $template
+     * @return string
+     */
     public function renderHtmlBody($markup, $template='default')
     {
         // Renderer
+        $renderer = $this->getPhpRenderer(); 
+        
+        // Resolver
+        $resolver = new \Zend\View\Resolver\TemplateMapResolver();
+        $map = array();
+        foreach ($this->config()->get('mailer.templates.available') as $name => $data)
+            $map[$name] = $data['base_uri'] . '/' . $data['filename'];
+            $resolver->setMap($map);
+            $renderer->setResolver($resolver);
+            
+            // Layout as view
+            $viewModel = new \Zend\View\Model\ViewModel();
+            $viewModel->setTemplate($template);
+            $viewModel->setVariables(array('content' => $markup));
+            
+            // Add styles
+            $templateConfig = $this->config()->get('mailer.templates.available.' . $template, array());
+            if (isset($templateConfig['css'])) {
+                $css = '';
+                foreach ($templateConfig['css'] as $filename)
+                    $css .= file_get_contents($templateConfig['base_uri'] . '/' . $filename) . ' ';
+                    $renderer->getHelperPluginManager()->get('headStyle')->appendStyle($css);
+            }
+            
+            // Render html
+            $html = $renderer->render($viewModel);
+            
+            return $html;
+    }
+    
+    protected function getPhpRenderer()
+    {
         $renderer = new \Zend\View\Renderer\PhpRenderer();
         
-        // Add view helpers
         $pluginManager = $renderer->getHelperPluginManager();
         foreach ($this->config()->get('view_helpers.invokables') as $name => $invokableClass)
             $pluginManager->setInvokableClass($name, $invokableClass);
-            $pluginManager->get('url')->setRouter($this->getServiceLocator()->get('Router'));
-            
-            // Resolver
-            $resolver = new \Zend\View\Resolver\TemplateMapResolver();
-            $map = array();
-            foreach ($this->config()->get('mailer.templates.available') as $name => $data)
-                $map[$name] = $data['base_uri'] . '/' . $data['filename'];
-                $resolver->setMap($map);
-                $renderer->setResolver($resolver);
-                
-                // Layout as view
-                $viewModel = new \Zend\View\Model\ViewModel();
-                $viewModel->setTemplate($template);
-                $viewModel->setVariables(array('content' => $markup));
-                
-                
-                // Add styles
-                $templateConfig = $this->config()->get('mailer.templates.available.' . $template, array());
-                if (isset($templateConfig['css'])) {
-                    $css = '';
-                    foreach ($templateConfig['css'] as $filename)
-                        $css .= file_get_contents($templateConfig['base_uri'] . '/' . $filename) . ' ';
-                        $renderer->getHelperPluginManager()->get('headStyle')->appendStyle($css);
-                }
-                
-                // Render html
-                $html = $renderer->render($viewModel);
-                
-                return $html;
-                
+        $pluginManager->get('url')->setRouter($this->getServiceLocator()->get('Router'));
+        
+        return $renderer;
     }
     
+    /**
+     * Register subscriber for given channels
+     * @param NewsSubscriberEntity $subscriber
+     * @param array $channels
+     */
     public function subscribe(NewsSubscriberEntity $subscriber, array $channels=array())
     {
         $this->em()->persist($subscriber);
@@ -85,12 +100,34 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
             $this->em()->flush();
             
             // Send mail with activation link
-            $tokens = array('host' => $_SERVER['HTTP_HOST'], 'link' => $token);
+            $urlHelper = $this->getPhpRenderer()->getHelperPluginManager()->get('url');
+            $link = $urlHelper('opt_in', array('token' => $token), array('force_canonical' => true));
+            $tokens = array('host' => $_SERVER['HTTP_HOST'], 'link' => $link);
             $msg = $this->createHtmlMessage('<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>', $tokens);
             $msg->setTo($subscriber->getEmailAddress());
             $msg->setSubject('Ihre Newsletter-Anmeldung');
             $this->send($msg);
         }
+    }
+    
+    /**
+     * Activate all subscriptions marked by the given activation token
+     * @param string $token
+     * @return array
+     */
+    public function optIn($token)
+    {
+        $subscriptions = array();
+        $timestamp = new \DateTime();
+        foreach ($this->nodes()->getRepository('SCP')->findBy(array('activationToken' => $token))as $subscription) {
+            if (! $subscription->getTimestampActivationSubscriber()) {
+                $subscription->setTimestampActivationSubscriber($timestamp);
+                $subscriptions[] = $subscription;
+                $this->em()->persist($subscription);
+            }
+        }
+        $this->em()->flush();
+        return $subscriptions;
     }
     
     public function createHtmlMessage($markup, array $tokens=array())
