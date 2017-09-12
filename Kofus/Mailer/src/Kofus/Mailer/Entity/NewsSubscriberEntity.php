@@ -26,7 +26,6 @@ class NewsSubscriberEntity implements NodeInterface
     	return $this->id;
     }
     
-    
     /**
      * @ORM\Column()
      */
@@ -41,6 +40,30 @@ class NewsSubscriberEntity implements NodeInterface
     {
     	return $this->emailAddress;
     }
+    
+    /**
+     * @ORM\Column(type="json_array")
+     */
+    protected $params=array();
+    
+    public function setParam($key, $value)
+    {
+        $this->params[$key] = $value; return $this;
+    }
+    
+    public function getParam($key)
+    {
+        if (isset($this->params[$key]))
+            return $this->params[$key];
+    }
+    
+    public function unsetParam($key)
+    {
+        if (isset($this->params[$key]))
+            unset($this->params[$key]);
+        return $this;
+    }
+    
     
 	public function getNodeType()
 	{
