@@ -86,6 +86,9 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
      */
     public function subscribe($subscriberId, array $channels=array(), $triggerOptIn=false)
     {
+        $subscriber = $this->nodes()->getNode($subscriberId);
+        if (! $subscriber || ! $subscriber instanceof \Kofus\Mailer\NewsSubscriberInterface)
+            throw new \Exception($subscriberId . ' is not a valid subscriber');
         $token = \Zend\Math\Rand::getString(32, 'abcdefghijklmnopqrstuvwxyz0123456789');
         foreach ($channels as $channel) {
             $existingSubscription = $this->nodes()->getRepository('SCP')->findOneBy(array('channel' => $channel, 'subscriberId' => $subscriberId));
@@ -121,9 +124,13 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
     
     public function unsubscribe($subscriberId, array $channels=array())
     {
+        $subscriber = $this->nodes()->getNode($subscriberId);
+        if (! $subscriber || ! $subscriber instanceof \Kofus\Mailer\NewsSubscriberInterface)
+            throw new \Exception($subscriberId . ' is not a valid subscriber');
         foreach ($channels as $channel) {
             $subscription = $this->nodes()->getRepository('SCP')->findOneBy(array('channel' => $channel, 'subscriberId' => $subscriberId));
-            $this->em()->remove($subscription);
+            if ($subscription)
+                $this->em()->remove($subscription);
         }
         $this->em()->flush();
         
