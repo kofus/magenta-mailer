@@ -84,30 +84,49 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
      * @param NewsSubscriberEntity $subscriber
      * @param array $channels
      */
-    public function subscribe(NewsSubscriberEntity $subscriber, array $channels=array())
+    public function subscribe($subscriberId, array $channels=array(), $triggerOptIn=false)
     {
-        $this->em()->persist($subscriber);
         $token = \Zend\Math\Rand::getString(32, 'abcdefghijklmnopqrstuvwxyz0123456789');
         foreach ($channels as $channel) {
-            $subscription = $this->nodes()->getRepository('SCP')->findOneBy(array('channel' => $channel, 'subscriber' => $subscriber));
-            if (! $subscription) {
+            $existingSubscription = $this->nodes()->getRepository('SCP')->findOneBy(array('channel' => $channel, 'subscriberId' => $subscriberId));
+            
+            if (! $existingSubscription) {
                 $subscription = new NewsSubscriptionEntity();
-                $subscription->setSubscriber($subscriber);
+                $subscription->setSubscriberId($subscriberId);
                 $subscription->setChannel($channel);
+            } else {
+                $subscription = $existingSubscription;
             }
-            $subscription->setActivationToken($token);
-            $this->em()->persist($subscription);
-            $this->em()->flush();
+            
+            if (! $existingSubscription) {
+                if (! $triggerOptIn)
+                    $subscription->setTimestampActivationSubscriber(new \DateTime());
+                $subscription->setActivationToken($token);
+                $this->em()->persist($subscription);
+                $this->em()->flush();
+            }
             
             // Send mail with activation link
-            $urlHelper = $this->getPhpRenderer()->getHelperPluginManager()->get('url');
-            $link = $urlHelper('opt_in', array('token' => $token), array('force_canonical' => true));
-            $tokens = array('host' => $_SERVER['HTTP_HOST'], 'link' => $link);
-            $msg = $this->createHtmlMessage('<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>', $tokens);
-            $msg->setTo($subscriber->getEmailAddress());
-            $msg->setSubject('Ihre Newsletter-Anmeldung');
-            $this->send($msg);
+            if ($triggerOptIn) {
+                $urlHelper = $this->getPhpRenderer()->getHelperPluginManager()->get('url');
+                $link = $urlHelper('opt_in', array('token' => $token), array('force_canonical' => true));
+                $tokens = array('host' => $_SERVER['HTTP_HOST'], 'link' => $link);
+                $msg = $this->createHtmlMessage('<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>', $tokens);
+                $msg->setTo($subscriber->getEmailAddress());
+                $msg->setSubject('Ihre Newsletter-Anmeldung');
+                $this->send($msg);
+            }
         }
+    }
+    
+    public function unsubscribe($subscriberId, array $channels=array())
+    {
+        foreach ($channels as $channel) {
+            $subscription = $this->nodes()->getRepository('SCP')->findOneBy(array('channel' => $channel, 'subscriberId' => $subscriberId));
+            $this->em()->remove($subscription);
+        }
+        $this->em()->flush();
+        
     }
     
     /**

@@ -18,4 +18,17 @@ class NewsChannelController extends AbstractActionController
     		'paginator' => $paginator
     	));
     }
+    
+    public function viewAction()
+    {
+        $this->archive()->uriStack()->push();
+        
+        $node = $this->nodes()->getNode($this->params('id'), 'NCH');
+        $subscriptions = $this->nodes()->getRepository('SCP')->findBy(array('channel' => $node));
+        
+        return new ViewModel(array(
+            'entity' => $node,
+            'subscriptions' => $subscriptions
+        ));
+    }
 }

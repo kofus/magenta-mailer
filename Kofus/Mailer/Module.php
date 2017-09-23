@@ -4,6 +4,7 @@ namespace Kofus\Mailer;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\Mvc\MvcEvent;
+use Zend\Console\Adapter\AdapterInterface as Console;
 
 
 class Module implements AutoloaderProviderInterface
@@ -30,6 +31,24 @@ class Module implements AutoloaderProviderInterface
     		$config = array_merge_recursive($config, include $filename);
     	return $config;
     }
+    
+    /**
+     * Assembles console help texts as provided in console router config (param "help_text")
+     * @return array
+     */
+    public function getConsoleUsage(Console $console)
+    {
+        $usage = array();
+        $config = $this->getConfig();
+        if (isset($config['console']['router']['routes'])) {
+            foreach ($config['console']['router']['routes'] as $route) {
+                if (isset($route['options']['help_text']))
+                    $usage[$route['options']['route']] = $route['options']['help_text'];
+            }
+        }
+        return $usage;
+    }
+    
 
     
 }

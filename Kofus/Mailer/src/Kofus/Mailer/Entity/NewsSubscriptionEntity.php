@@ -10,7 +10,7 @@ use Kofus\System\Node\NodeInterface;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="kofus_mailer_subscriptions")
+ * @ORM\Table(name="kofus_mailer_subscriptions", uniqueConstraints={@ORM\UniqueConstraint(name="unique", columns={"subscriberId", "channel_id"})})
  *
  */
 class NewsSubscriptionEntity implements NodeInterface
@@ -28,18 +28,18 @@ class NewsSubscriptionEntity implements NodeInterface
     }
     
     /**
-     * @ORM\ManyToOne(targetEntity="Kofus\Mailer\Entity\NewsSubscriberEntity")
+     * @ORM\Column()
      */
-    protected $subscriber;
+    protected $subscriberId;
     
-    public function setSubscriber(NewsSubscriberEntity $entity)
+    public function setSubscriberId($value)
     {
-        $this->subscriber = $entity; return $this;
+        $this->subscriberId = $value; return $this;
     }
     
-    public function getSubscriber()
+    public function getSubscriberId()
     {
-        return $this->subscriber;
+        return $this->subscriberId;
     }
     
     

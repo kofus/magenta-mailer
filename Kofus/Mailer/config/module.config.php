@@ -10,12 +10,15 @@ return array(
             'Kofus\Mailer\Controller\News' => 'Kofus\Mailer\Controller\NewsController',
             'Kofus\Mailer\Controller\Job' => 'Kofus\Mailer\Controller\JobController',
             'Kofus\Mailer\Controller\Mail' => 'Kofus\Mailer\Controller\MailController',
+            'Kofus\Mailer\Controller\Console' => 'Kofus\Mailer\Controller\ConsoleController',
+            
         )
     ),
     
     'user' => array(
         'controller_mappings' => array(
-            'Kofus\Mailer\Controller\Frontend' => 'Frontend'
+            'Kofus\Mailer\Controller\Frontend' => 'Frontend',
+            'Kofus\Mailer\Controller\Console' => 'Console'
         )
     ),
     

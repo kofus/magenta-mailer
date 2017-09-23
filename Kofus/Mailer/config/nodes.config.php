@@ -149,7 +149,21 @@ return array(
                                 'id' => 'NCH'
                             )
                         )
-                    )
+                    ),
+                    'view' => array(
+                        'edit' => array(
+                            'icon' => 'glyphicon glyphicon-pencil',
+                            'label' => 'Edit',
+                            'route' => 'kofus_system',
+                            'controller' => 'node',
+                            'action' => 'edit',
+                            'params' => array(
+                                'id' => '{node_id}'
+                            )
+                        )
+                    ),
+                    
+                    
                 )
             ),
             'SCB' => array(

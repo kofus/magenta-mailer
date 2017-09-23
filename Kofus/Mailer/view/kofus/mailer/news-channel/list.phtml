@@ -11,7 +11,7 @@
             <?php foreach ($this->paginator as $entity) : ?>
                 <tr <?php if (! $entity->isEnabled()) echo 'class="danger"' ?>>
                     <td>
-                        <a href="<?php echo $this->url('kofus_system', array('controller' => 'node', 'action' => 'edit', 'id' => $entity->getNodeId())) ?>">
+                        <a href="<?php echo $this->url('kofus_mailer', array('controller' => 'news-channel', 'action' => 'view', 'id' => $entity->getNodeId())) ?>">
 	                        <?php echo $this->escapeHtml($entity->getTitle()) ?>
 	                    </a>
                     </td>

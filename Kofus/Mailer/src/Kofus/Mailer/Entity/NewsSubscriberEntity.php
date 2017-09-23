@@ -4,7 +4,7 @@ namespace Kofus\Mailer\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Kofus\System\Node\NodeInterface;
-use Kofus\Mailer\Entity\NewsgroupEntity;
+use Kofus\Mailer\NewsSubscriberInterface;
 
 
 
@@ -12,7 +12,7 @@ use Kofus\Mailer\Entity\NewsgroupEntity;
  * @ORM\Entity
  * @ORM\Table(name="kofus_mailer_subscribers", uniqueConstraints={@ORM\UniqueConstraint(name="emailAddress", columns={"emailAddress"})})
  */
-class NewsSubscriberEntity implements NodeInterface
+class NewsSubscriberEntity implements NodeInterface, NewsSubscriberInterface
 {
     /**
      * @ORM\Id
@@ -44,24 +44,29 @@ class NewsSubscriberEntity implements NodeInterface
     /**
      * @ORM\Column(type="json_array")
      */
-    protected $params=array();
+    protected $mailerParams=array();
     
-    public function setParam($key, $value)
+    public function setMailerParam($key, $value)
     {
-        $this->params[$key] = $value; return $this;
+        $this->mailerParams[$key] = $value; return $this;
     }
     
-    public function getParam($key)
+    public function getMailerParam($key)
     {
-        if (isset($this->params[$key]))
-            return $this->params[$key];
+        if (isset($this->mailerParams[$key]))
+            return $this->mailerParams[$key];
     }
     
-    public function unsetParam($key)
+    public function unsetMailerParam($key)
     {
-        if (isset($this->params[$key]))
-            unset($this->params[$key]);
+        if (isset($this->mailerParams[$key]))
+            unset($this->mailerParams[$key]);
         return $this;
+    }
+    
+    public function getMailerParams()
+    {
+        return $this->mailerParams;
     }
     
     
