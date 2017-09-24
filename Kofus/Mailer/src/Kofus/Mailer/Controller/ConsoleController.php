@@ -37,7 +37,7 @@ class ConsoleController extends AbstractActionController
             $msg->setSubject($news->getSubject());
             
             sleep(5);
-            $this->mailer()->send($msg);
+            $this->mailer()->enqueue($msg);
         }
     }
     
