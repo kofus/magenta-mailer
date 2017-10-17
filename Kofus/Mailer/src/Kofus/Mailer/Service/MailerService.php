@@ -193,8 +193,10 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         $msg = new \Zend\Mail\Message();
         $msg->setBody($body);
         
-        if ($this->config()->get('mailer.params.from'))
-            $msg->setFrom($this->config()->get('mailer.params.from'));
+        foreach ($this->config()->get('mailer.params') as $key => $value) {
+            $method = 'set' . $key;
+            $msg->$method($value);
+        }
         
         return $msg;
     }
