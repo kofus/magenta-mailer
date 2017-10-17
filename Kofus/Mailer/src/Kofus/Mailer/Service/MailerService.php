@@ -42,29 +42,31 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         // Resolver
         $resolver = new \Zend\View\Resolver\TemplateMapResolver();
         $map = array();
-        foreach ($this->config()->get('mailer.templates.available') as $name => $data)
+        foreach ($this->config()->get('mailer.templates.available', array()) as $name => $data)
             $map[$name] = $data['base_uri'] . '/' . $data['filename'];
-            $resolver->setMap($map);
-            $renderer->setResolver($resolver);
-            
-            // Layout as view
-            $viewModel = new \Zend\View\Model\ViewModel();
-            $viewModel->setTemplate($template);
-            $viewModel->setVariables(array('content' => $markup));
-            
-            // Add styles
-            $templateConfig = $this->config()->get('mailer.templates.available.' . $template, array());
-            if (isset($templateConfig['css'])) {
-                $css = '';
-                foreach ($templateConfig['css'] as $filename)
-                    $css .= file_get_contents($templateConfig['base_uri'] . '/' . $filename) . ' ';
-                    $renderer->getHelperPluginManager()->get('headStyle')->appendStyle($css);
-            }
-            
-            // Render html
-            $html = $renderer->render($viewModel);
-            
-            return $html;
+        if (! isset($map[$template]))
+            return $markup;
+        $resolver->setMap($map);
+        $renderer->setResolver($resolver);
+        
+        // Layout as view
+        $viewModel = new \Zend\View\Model\ViewModel();
+        $viewModel->setTemplate($template);
+        $viewModel->setVariables(array('content' => $markup));
+        
+        // Add styles
+        $templateConfig = $this->config()->get('mailer.templates.available.' . $template, array());
+        if (isset($templateConfig['css'])) {
+            $css = '';
+            foreach ($templateConfig['css'] as $filename)
+                $css .= file_get_contents($templateConfig['base_uri'] . '/' . $filename) . ' ';
+                $renderer->getHelperPluginManager()->get('headStyle')->appendStyle($css);
+        }
+        
+        // Render html
+        $html = $renderer->render($viewModel);
+        
+        return $html;
     }
     
     protected function getPhpRenderer()
@@ -162,6 +164,35 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         }
         $this->em()->flush();
         return $subscriptions;
+    }
+    
+    public function form2Html(\Zend\Form\Form $form)
+    {
+        $html = '';
+        foreach ($form as $fieldset) {
+            if ($fieldset instanceof \Zend\Form\FieldsetInterface) {
+                if ($fieldset->getLabel())
+                    $html .= '<h2>' . htmlentities($fieldset->getLabel()) . '</h2>';
+                $html .= '<table>';
+                foreach ($fieldset as $element) {
+                    switch (get_class($element)) {
+                        case 'Zend\Form\Element\Text':
+                        case 'Zend\Form\Element\Textarea':
+                            $html .= '<tr>';
+                            $html .= '<th align="left">' . htmlentities($element->getLabel()) . ':&nbsp;</th>';
+                            $html .= '<td align="left">' . htmlentities($element->getValue()) . '</td>';
+                            $html .= '</tr>';
+                            break;
+                        
+                        //default:
+                          //  print get_class($element);
+                    }
+                    
+                }
+                $html .= '</table>';
+            }
+        }
+        return $html;
     }
     
     public function createHtmlMessage($markup, array $tokens=array())
