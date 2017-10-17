@@ -113,7 +113,9 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
             if ($triggerOptIn) {
                 $urlHelper = $this->getPhpRenderer()->getHelperPluginManager()->get('url');
                 $link = $urlHelper('opt_in', array('token' => $token), array('force_canonical' => true));
-                $tokens = array('host' => $_SERVER['HTTP_HOST'], 'link' => $link);
+                $tokens = $subscriber->getMailerParams();
+                $tokens['host'] = $_SERVER['HTTP_HOST'];
+                $tokens['link'] = $link;
                 $news = $this->nodes()->getRepository('NS')->findOneBy(array('systemId' => 'OPT_IN'));
                 if ($news) {
                     $msg = $this->createHtmlMessage($news->getContentHtml(), $tokens);
