@@ -114,9 +114,15 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
                 $urlHelper = $this->getPhpRenderer()->getHelperPluginManager()->get('url');
                 $link = $urlHelper('opt_in', array('token' => $token), array('force_canonical' => true));
                 $tokens = array('host' => $_SERVER['HTTP_HOST'], 'link' => $link);
-                $msg = $this->createHtmlMessage('<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>', $tokens);
+                $news = $this->nodes()->getRepository('NS')->findOneBy(array('systemId' => 'OPT_IN'));
+                if ($news) {
+                    $msg = $this->createHtmlMessage($news->getContentHtml(), $tokens);
+                    $msg->setSubject($news->getSubject());
+                } else {
+                    $msg = $this->createHtmlMessage('<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>', $tokens);
+                    $msg->setSubject('Ihre Newsletter-Anmeldung');
+                }
                 $msg->setTo($subscriber->getEmailAddress());
-                $msg->setSubject('Ihre Newsletter-Anmeldung');
                 $this->send($msg);
             }
         }
@@ -158,6 +164,15 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
     
     public function createHtmlMessage($markup, array $tokens=array())
     {
+        // Preprocess tokens
+        if (isset($tokens['gender']) && ! isset($tokens['anrede'])) {
+            if ($tokens['gender'] == f) {
+                $tokens['anrede'] = 'Frau';
+            } else {
+                $tokens['anrede'] = 'Herr';
+            }
+        }
+        
         // Populate tokens
         foreach ($tokens as $key => $value)
             $markup = str_replace('{' . $key . '}', $value, $markup);

@@ -11,6 +11,7 @@ class MasterHydrator implements HydratorInterface
 		$data['content_html'] = $object->getContentHtml();
 		$data['content_text'] = $object->getContentText();
 		$data['template'] = $object->getTemplate();
+		$data['system_id'] = $object->getSystemId();
 		
 		return $data;
 	}
@@ -21,6 +22,7 @@ class MasterHydrator implements HydratorInterface
        	$object->setContentHtml($data['content_html']);
        	$object->setContentText($data['content_text']);
        	$object->setTemplate($data['template']);
+       	$object->setSystemId($data['system_id']);
        	
 		return $object;
 	}

@@ -9,7 +9,7 @@ use Kofus\System\Node;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="kofus_mailer_news")
+ * @ORM\Table(name="kofus_mailer_news", uniqueConstraints={@ORM\UniqueConstraint(name="systemId", columns={"systemId"})})
  */
 class NewsEntity implements Node\NodeInterface, Node\EnableableNodeInterface
 {
@@ -114,6 +114,22 @@ class NewsEntity implements Node\NodeInterface, Node\EnableableNodeInterface
 	{
 	    return $this->channelIds;
 	}
+	
+	/**
+	 * @ORM\Column(nullable=true)
+	 */
+	protected $systemId;
+	
+	public function setSystemId($value)
+	{
+	    $this->systemId = $value; return $this;
+	}
+	
+	public function getSystemId()
+	{
+	    return $this->systemId;
+	}
+	
 	
 	public function getNodeType()
 	{
