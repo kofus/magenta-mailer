@@ -9,7 +9,7 @@ use Kofus\System\Form\Element\NodeSelect;
 
 
 
-class AddFieldset extends Fieldset implements InputFilterProviderInterface, ServiceLocatorAwareInterface
+class MasterFieldset extends Fieldset implements InputFilterProviderInterface, ServiceLocatorAwareInterface
 {
 	public function init()
 	{
@@ -17,21 +17,32 @@ class AddFieldset extends Fieldset implements InputFilterProviderInterface, Serv
 	    $el = new NodeSelect('news', array('label' => 'News', 'node-type' => 'NS'));
 	    $this->add($el);
 	    
-	    /*
-	    $valueOptions = array();
-	    foreach ($this->nodes()->getRepository('NS')->findBy(array(), array('id' => 'DESC')) as $news)
-	        $valueOptions[$news->getNodeId()] = (string) $news;
-	    $el = new Element\Select('news', array('label' => 'News'));
-        $el->setValueOptions($valueOptions);	    
-		$this->add($el);
-		*/
-		
 		$channels = array();
 		foreach ($this->nodes()->getRepository('NCH')->findAll() as $channel)
 		    $channels[$channel->getNodeId()] = $channel->getTitle();
 		$el = new Element\MultiCheckbox('channels', array('label' => 'Channels'));
 		$el->setValueOptions($channels);
 		$this->add($el);
+		
+		$el = new Element\DateTimeSelect('scheduled', array('label' => 'Geplanter Versandbeginn'));
+		$this->add($el);
+		
+		$config = $this->getServiceLocator()->get('KofusConfig');
+		if ($config->get('mailer.addresses')) {
+		    $valueOptions = array();
+		    foreach ($config->get('mailer.addresses') as $address)
+		        $valueOptions[$address->toString()] = $address->toString();
+    		$el = new Element\Select('from', array(
+    		    'label' => 'Absender',
+    		    'value_options' => $valueOptions
+    		));
+    		$this->add($el);
+		}
+		
+		$el = new Element\Checkbox('enabled', array('label' => 'enabled?'));
+		$this->add($el);
+		
+		
 	}
 
 	public function getInputFilterSpecification()

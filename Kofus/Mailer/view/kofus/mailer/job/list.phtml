@@ -4,15 +4,23 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>News-Betreff</th>
-                <th>Channel</th>
+            	<th>Geplanter Versand</th>
+            	<th>Status</th>
+                <th>Betreff</th>
+                <th>Channels</th>
             </tr>
         </thead>
         <tbody class="rowlink" data-link="row">
             <?php foreach ($this->paginator as $entity) : ?>
-                <tr>
+                <tr <?php if (! $entity->isEnabled()) echo 'class="danger"' ?>>
+                	<td>
+                		<?php echo $this->dateFormat($entity->getTimestampScheduled(), \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT) ?>
+                	</td>
+                	<td>
+                		<?php echo $entity->getStatus(true) ?>
+                	</td>
                     <td>
-                        <a href="<?php echo $this->url('kofus_mailer', array('controller' => 'job', 'action' => 'view', 'id' => $entity->getNodeId())) ?>">
+                        <a href="<?php echo $this->url('kofus_system', array('controller' => 'node', 'action' => 'edit', 'id' => $entity->getNodeId())) ?>">
 	                        <?php echo $this->escapeHtml($entity->getNews()->getSubject()) ?>
 	                    </a>
                     </td>

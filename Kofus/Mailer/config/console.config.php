@@ -5,10 +5,10 @@ return array(
             'routes' => array(
                 'batch-send' => array(
                     'options' => array(
-                        'route' => 'mailer send <news> <channel>',
+                        'route' => 'mailer send',
                         'help_text' => 'Send batch mails.',
                         'defaults' => array(
-                            'action' => 'sendBatch',
+                            'action' => 'send',
                             'controller' => 'console',
                             '__NAMESPACE__' => 'Kofus\Mailer\Controller'
                         ),

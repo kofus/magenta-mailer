@@ -12,33 +12,50 @@ use Kofus\Media\Entity\PdfEntity;
 
 class ConsoleController extends AbstractActionController
 {
-    
-    public function sendBatchAction()
+    public function sendAction()
     {
-        $news = $this->nodes()->getNode($this->params('news'), 'NS');
-        if (! $news)
-            throw new \Exception($this->params('news') . ' is not a valid node id for a news (NS)'); 
-        $channel = $this->nodes()->getNode($this->params('channel'), 'NCH');
-        if (! $channel)
-            throw new \Exception($this->params('channel') . ' is not a valid node id for a channel (NCH)');
+        $qb = $this->nodes()->createQueryBuilder('MJ');
+        $qb->where('n.enabled = true')
+            ->andWhere('n.status = 0')
+            ->andWhere('n.timestampScheduled <= :now')
+            ->setParameter('now', new \DateTime());
+        $jobs = $qb->getQuery()->getResult();
         
-        
-        $subscriptions = $this->nodes()->getRepository('SCP')->findBy(array('channel' => $channel));
-        foreach ($subscriptions as $subscription) {
-            $subscriberId = $subscription->getSubscriberId();
-            $subscriber = $this->nodes()->getNode($subscriberId);
-            if (! $subscriber instanceof \Kofus\Mailer\NewsSubscriberInterface)
-                throw new \Exception($subscriber . ' must implement NewsSubscriberInterface');
+        foreach ($jobs as $job) {
+            $news = $job->getNews();
+            echo 'Job ' . $job . PHP_EOL;
+            echo 'News ' . $news . PHP_EOL;
             
-            
-            print $subscriber . ' ' . $subscriber->getEmailAddress() . PHP_EOL;
-            $msg = $this->mailer()->createHtmlMessage($news->getContentHtml(), $subscriber->getMailerParams());
-            $msg->addTo($subscriber->getEmailAddress());
-            $msg->setSubject($news->getSubject());
-            
-            sleep(5);
-            $this->mailer()->enqueue($msg);
+            foreach ($job->getChannels() as $channel) {
+                echo 'Channel ' . $channel . PHP_EOL;
+                echo PHP_EOL . 'Start...' . PHP_EOL;
+                
+                $subscriptions = $this->nodes()->getRepository('SCP')->findBy(array('channel' => $channel));
+                foreach ($subscriptions as $subscription) {
+                    $subscriberId = $subscription->getSubscriberId();
+                    $subscriber = $this->nodes()->getNode($subscriberId);
+                    
+                    echo $subscriber . ' ' . $subscriber->getEmailAddress() . PHP_EOL;
+                    $msg = $this->mailer()->createHtmlMessage($news->getContentHtml(), $subscriber->getMailerParams());
+                    foreach ($job->getParams() as $method => $value) {
+                        $method = 'set' . $method;
+                        $msg->$method($value);
+                    }
+                    $msg->addTo($subscriber->getEmailAddress());
+                    $msg->setSubject($news->getSubject());
+                    
+                    sleep(5);
+                    $this->mailer()->enqueue($msg);
+                }
+            }
+            echo PHP_EOL;
         }
+        echo PHP_EOL;
+        
+        $job->setStatus(2);
+        $job->setTimestampCompleted(new \DateTime());
+        $this->em()->persist($job);
+        $this->em()->flush();
     }
     
    

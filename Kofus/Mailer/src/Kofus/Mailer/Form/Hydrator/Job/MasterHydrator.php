@@ -5,11 +5,24 @@ use Zend\Stdlib\Hydrator\HydratorInterface;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
-class AddHydrator implements HydratorInterface, ServiceLocatorAwareInterface
+class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 {
 	public function extract($object)
 	{
+	    $newsId = null;
+	    if ($object->getNews())
+	        $newsId = $object->getNews()->getNodeId();
+	    
+	    $channels = array();
+	    foreach ($object->getChannels() as $channel)
+	        $channels[] = $channel->getNodeId();
+	    
 		return array(
+		    'news' => $newsId,
+		    'channels' => $channels,
+		    'scheduled' => new \DateTime(),
+		    'enabled' => $object->isEnabled(),
+		    'from' => $object->getParam('From')
 		);
 	}
 
@@ -21,6 +34,13 @@ class AddHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 	    
 	    $object->setNews($news);
 	    $object->setChannels($channels);
+
+	    $scheduled = \DateTime::createFromFormat('Y-m-d H:i:s', $data['scheduled']);
+	    $object->setTimestampScheduled($scheduled);
+	    $object->isEnabled($data['enabled']);
+	    
+	    if (isset($data['from']))
+	        $object->setParam('From', $data['from']);
 	        
 		return $object;
 	}

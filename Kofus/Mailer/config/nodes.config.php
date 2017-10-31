@@ -62,19 +62,11 @@ return array(
                     )
                 ),
                 'form' => array(
-                    'add' => array(
+                    'default' => array(
                         'fieldsets' => array(
                             'master' => array(
-                                'class' => 'Kofus\Mailer\Form\Fieldset\Job\AddFieldset',
-                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Job\AddHydrator'
-                            )
-                        )
-                    ),
-                    'edit' => array(
-                        'fieldsets' => array(
-                            'master' => array(
-                                'class' => 'Kofus\Mailer\Form\Fieldset\Job\EditFieldset',
-                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Job\EditHydrator'
+                                'class' => 'Kofus\Mailer\Form\Fieldset\Job\MasterFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Job\MasterHydrator'
                             )
                         )
                     ),
