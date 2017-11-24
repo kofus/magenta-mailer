@@ -53,7 +53,7 @@ class JobEntity implements NodeInterface
      * @ORM\JoinTable(name="kofus_mailer_jobs_channels",
      *     joinColumns={@ORM\JoinColumn(name="job_id", referencedColumnName="id")},
      *     inverseJoinColumns={@ORM\JoinColumn(name="channel_id", referencedColumnName="id",
-     *     unique=true)}
+     *     unique=false)}
      * )
      */
     protected $channels;
