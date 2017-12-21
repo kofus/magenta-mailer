@@ -71,7 +71,8 @@ return array(
     
     'service_manager' => array(
         'invokables' => array(
-            'KofusMailerService' => 'Kofus\Mailer\Service\MailerService'
+            'KofusMailerService' => 'Kofus\Mailer\Service\MailerService',
+            'KofusMailerErrorListener' => 'Kofus\Mailer\Listener\ErrorListener'
         )
     ),
     
