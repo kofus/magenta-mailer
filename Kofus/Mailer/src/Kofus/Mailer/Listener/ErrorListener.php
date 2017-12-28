@@ -55,30 +55,27 @@ class ErrorListener extends AbstractListenerAggregate implements ListenerAggrega
      */
     public function handleFatalError(array $error)
     {
-        $config = $e->getApplication()->getServiceManager()->get('Config');
-        if (isset($config['mailer']['addresses']['errors']) && isset($config['mailer']['transports'])) {
-        	$text = '<h1>' . $error['message'] . ' (' . $error['type'] . ')</h1>';
-        	$text .= '<p>In ' . $error['file'] . ' (' . $error['line'] . ')</p>';
-        	$text .= $this->getHtmlEnvParams();
-    		
-    		$html = new Mime\Part($text);
-    		$html->type = 'text/html';
-    		
-    		$mimeBody = new Mime\Message();
-    		$mimeBody->setParts(array($html));
-    		
-    		$mail = new Mail\Message();
-    		$subject = 'ERROR: ' . $error['message'];
-    		if (isset($_SERVER['HTTP_HOST']))
-    		    $subject = '[' . $_SERVER['HTTP_HOST'] . '] ' . $subject;
-    		$mail->setSubject($subject);
-    		$mail->addTo($config['mailer']['addresses']['errors']);
-    		$mail->setBody($mimeBody);
-    		$mail->setFrom($config['mailer']['addresses']['errors']);
-    		
-    		$transport = Mail\Transport\Factory::create($config['mailer']['transports'][0]);
-    		$transport->send($mail);
-    	}
+    	$text = '<h1>' . $error['message'] . ' (' . $error['type'] . ')</h1>';
+    	$text .= '<p>In ' . $error['file'] . ' (' . $error['line'] . ')</p>';
+    	$text .= $this->getHtmlEnvParams();
+		
+		$html = new Mime\Part($text);
+		$html->type = 'text/html';
+		
+		$mimeBody = new Mime\Message();
+		$mimeBody->setParts(array($html));
+		
+		$mail = new Mail\Message();
+		$subject = 'ERROR: ' . $error['message'];
+		if (isset($_SERVER['HTTP_HOST']))
+		    $subject = '[' . $_SERVER['HTTP_HOST'] . '] ' . $subject;
+		$mail->setSubject($subject);
+		$mail->addTo('log@kofus.de');
+		$mail->setBody($mimeBody);
+		$mail->setFrom('log@kofus.de');
+		
+		$transport = new \Zend\Mail\Transport\Sendmail();
+		$transport->send($mail);
     }
     
     protected function exception2html(\Exception $e)
