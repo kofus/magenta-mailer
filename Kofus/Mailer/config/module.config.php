@@ -11,14 +11,15 @@ return array(
             'Kofus\Mailer\Controller\Job' => 'Kofus\Mailer\Controller\JobController',
             'Kofus\Mailer\Controller\Mail' => 'Kofus\Mailer\Controller\MailController',
             'Kofus\Mailer\Controller\Console' => 'Kofus\Mailer\Controller\ConsoleController',
-            
+            'Kofus\Mailer\Controller\Newsletter' => 'Kofus\Mailer\Controller\NewsletterController',
         )
     ),
     
     'user' => array(
         'controller_mappings' => array(
             'Kofus\Mailer\Controller\Frontend' => 'Frontend',
-            'Kofus\Mailer\Controller\Console' => 'Console'
+            'Kofus\Mailer\Controller\Console' => 'Console',
+            'Kofus\Mailer\Controller\Newsletter' => 'Frontend'
         )
     ),
     
@@ -84,7 +85,11 @@ return array(
             'Kofus\Mailer' => true
         ),
         'module_layouts' => array(
-            'Kofus\Mailer' => 'kofus/layout/admin',
+            'Kofus\Mailer\Controller\NewsChannelController' => 'kofus/layout/admin',
+            'Kofus\Mailer\Controller\NewsSubscriberController' => 'kofus/layout/admin',
+            'Kofus\Mailer\Controller\NewsController' => 'kofus/layout/admin',
+            'Kofus\Mailer\Controller\JobController' => 'kofus/layout/admin',
+            'Kofus\Mailer\Controller\MailController' => 'kofus/layout/admin',
         )
     ),
     

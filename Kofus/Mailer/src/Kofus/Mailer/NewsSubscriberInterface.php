@@ -7,4 +7,6 @@ interface NewsSubscriberInterface
     public function getEmailAddress();
     
     public function getMailerParams();
+    
+    public function getToken();
 }

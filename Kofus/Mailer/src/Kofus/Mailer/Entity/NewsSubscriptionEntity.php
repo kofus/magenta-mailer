@@ -105,6 +105,11 @@ class NewsSubscriptionEntity implements NodeInterface
         return $status;
     }
     
+    public function setStatus($value)
+    {
+        $this->status = $value; return $this;
+    }
+    
 	public function getNodeType()
 	{
 		return 'SCP';

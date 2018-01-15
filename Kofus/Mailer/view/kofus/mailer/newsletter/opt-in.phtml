@@ -1,0 +1,21 @@
+<div class="row">
+	<div class="col-md-3"></div>
+	<div class="col-md-6">
+        <h1>Newsletter</h1>
+        <?php if ($this->subscriptions) : ?>
+        	<p>Vielen Dank für Ihre Bestätigung.</p>
+        	<p>Wir haben Sie für folgende, neue Newsletter eingetragen:</p>
+        	<ul>
+        		<?php foreach ($this->subscriptions as $subscription) : ?>
+        			<li>
+        				<?php echo $subscription->getChannel()->getTitle() ?>
+        			</li>
+        		<?php endforeach ?>
+        	</ul>
+        <?php else : ?>
+        	<p>Vielen Dank für Ihre Bestätigung.</p>
+        	<p>Alle abonnierten Newsletter wurden bereits von Ihnen bestätigt.</p>
+        <?php endif ?>
+    </div>
+    <div class="col-md-3"></div>
+</div>

@@ -12,6 +12,21 @@ use Kofus\Media\Entity\PdfEntity;
 
 class ConsoleController extends AbstractActionController
 {
+    
+    protected function processMailerParams(array $params)
+    {
+        if (isset($params['gender'])) {
+            if ($params['gender'] == 'm') {
+                $params['Lieber Herr'] = 'Lieber Herr';
+                
+            } elseif ($params['gender'] == 'f') {
+                $params['Lieber Herr'] = 'Liebe Frau';
+            }
+        }
+        return $params;
+    }
+    
+    
     public function sendAction()
     {
         $qb = $this->nodes()->createQueryBuilder('MJ');
@@ -36,7 +51,12 @@ class ConsoleController extends AbstractActionController
                     $subscriber = $this->nodes()->getNode($subscriberId);
                     
                     echo $subscriber . ' ' . $subscriber->getEmailAddress() . PHP_EOL;
-                    $msg = $this->mailer()->createHtmlMessage($news->getContentHtml(), $subscriber->getMailerParams());
+                    $mailerParams = $this->processMailerParams($subscriber->getMailerParams());
+                    $viewParams = array(
+                        'content' => $news->getContentHtml(),
+                        'subscriber' => $subscriber
+                    );
+                    $msg = $this->mailer()->createHtmlMessage($viewParams, $mailerParams);
                     foreach ($job->getParams() as $method => $value) {
                         $method = 'set' . $method;
                         $msg->$method($value);
