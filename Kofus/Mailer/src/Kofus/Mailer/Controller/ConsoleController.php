@@ -71,13 +71,9 @@ class ConsoleController extends AbstractActionController
             echo PHP_EOL;
             $job->setStatus(2);
             $job->setTimestampCompleted(new \DateTime());
+            $this->em()->persist($job);
+            $this->em()->flush();
         }
         echo PHP_EOL;
-        
-        $this->em()->persist($job);
-        $this->em()->flush();
     }
-    
-   
-    
 }
