@@ -12,6 +12,7 @@ class AdministerHydrator implements HydratorInterface, ServiceLocatorAwareInterf
 	public function extract($object)
 	{
 	    $subscriptions = $this->nodes()->getRepository('SCP')->findBy(array('subscriberId' => $object->getNodeId()));
+	    $channels = array();
 	    foreach ($subscriptions as $subscription)
 	        $channels[] = $subscription->getChannel()->getNodeId();
 	    
