@@ -35,7 +35,7 @@ class NewsController extends AbstractActionController
     {
         $node = $this->nodes()->getNode($this->params('id'), 'NS');
         
-        $html = $this->mailer()->renderHtmlBody($node->getContentHtml());
+        $html = $this->mailer()->renderHtmlBody(array('content' => $node->getContentHtml()));
         
         $response = $this->getResponse();
         $response->setContent($html);
