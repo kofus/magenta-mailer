@@ -23,7 +23,7 @@ class NewsSubscriberController extends AbstractActionController
     {
         $this->archive()->uriStack()->push();
         $subscriber = $this->nodes()->getNode($this->params('id'), 'SCB');
-        $subscriptions = $this->nodes()->getRepository('SCP')->findBy(array('subscriber' => $subscriber));
+        $subscriptions = $this->nodes()->getRepository('SCP')->findBy(array('subscriberId' => $subscriber->getId()));
         
         return new ViewModel(array(
             'subscriber' =>  $subscriber,

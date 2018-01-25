@@ -10,7 +10,7 @@ use Kofus\Mailer\NewsSubscriberInterface;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="kofus_mailer_subscribers", uniqueConstraints={@ORM\UniqueConstraint(name="emailAddress", columns={"emailAddress"})})
+ * @ORM\Table(name="kofus_mailer_subscribers", uniqueConstraints={@ORM\UniqueConstraint(name="emailAddress", columns={"emailAddress"}), @ORM\UniqueConstraint(name="token", columns={"token"})})
  */
 class NewsSubscriberEntity implements NodeInterface, NewsSubscriberInterface
 {
@@ -68,6 +68,22 @@ class NewsSubscriberEntity implements NodeInterface, NewsSubscriberInterface
     {
         return $this->mailerParams;
     }
+    
+    /**
+     * @ORM\Column()
+     */
+    protected $token;
+    
+    public function setToken($value)
+    {
+        $this->token = $value; return $this;
+    }
+    
+    public function getToken()
+    {
+        return $this->token;
+    }
+    
     
     
 	public function getNodeType()

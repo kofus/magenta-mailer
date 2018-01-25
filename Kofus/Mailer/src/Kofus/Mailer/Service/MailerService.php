@@ -34,7 +34,7 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
      * @param string $template
      * @return string
      */
-    public function renderHtmlBody($markup, $template='default')
+        public function renderHtmlBody(array $viewParams=array(), $template='default')
     {
         // Renderer
         $renderer = $this->getPhpRenderer(); 
@@ -45,14 +45,13 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         foreach ($this->config()->get('mailer.templates.available', array()) as $name => $data)
             $map[$name] = $data['base_uri'] . '/' . $data['filename'];
         if (! isset($map[$template]))
-            return $markup;
+            return $viewParams['content'];
         $resolver->setMap($map);
         $renderer->setResolver($resolver);
         
         // Layout as view
-        $viewModel = new \Zend\View\Model\ViewModel();
+        $viewModel = new \Zend\View\Model\ViewModel($viewParams);
         $viewModel->setTemplate($template);
-        $viewModel->setVariables(array('content' => $markup));
         
         // Add styles
         $templateConfig = $this->config()->get('mailer.templates.available.' . $template, array());
@@ -91,7 +90,7 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         $subscriber = $this->nodes()->getNode($subscriberId);
         if (! $subscriber || ! $subscriber instanceof \Kofus\Mailer\NewsSubscriberInterface)
             throw new \Exception($subscriberId . ' is not a valid subscriber');
-        $token = \Zend\Math\Rand::getString(32, 'abcdefghijklmnopqrstuvwxyz0123456789');
+        $token = \Zend\Math\Rand::getString(16, 'abcdefghijklmnopqrstuvwxyz0123456789');
         foreach ($channels as $channel) {
             $existingSubscription = $this->nodes()->getRepository('SCP')->findOneBy(array('channel' => $channel, 'subscriberId' => $subscriberId));
             
@@ -114,16 +113,16 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
             // Send mail with activation link
             if ($triggerOptIn) {
                 $urlHelper = $this->getPhpRenderer()->getHelperPluginManager()->get('url');
-                $link = $urlHelper('opt_in', array('token' => $token), array('force_canonical' => true));
+                $link = $urlHelper('kofus_mailer', array('controller' => 'newsletter', 'action' => 'opt-in', 'id' => $token), array('force_canonical' => true));
                 $tokens = $subscriber->getMailerParams();
                 $tokens['host'] = $_SERVER['HTTP_HOST'];
                 $tokens['link'] = $link;
                 $news = $this->nodes()->getRepository('NS')->findOneBy(array('systemId' => 'OPT_IN'));
                 if ($news) {
-                    $msg = $this->createHtmlMessage($news->getContentHtml(), $tokens);
+                    $msg = $this->createHtmlMessage(array('content' => $news->getContentHtml()), $tokens);
                     $msg->setSubject($news->getSubject());
                 } else {
-                    $msg = $this->createHtmlMessage('<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>', $tokens);
+                    $msg = $this->createHtmlMessage(array('content' => '<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>'), $tokens);
                     $msg->setSubject('Ihre Newsletter-Anmeldung');
                 }
                 $msg->setTo($subscriber->getEmailAddress());
@@ -195,11 +194,11 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         return $html;
     }
     
-    public function createHtmlMessage($markup, array $tokens=array())
+    public function createHtmlMessage(array $viewParams=array(), array $tokens=array())
     {
         // Preprocess tokens
         if (isset($tokens['gender']) && ! isset($tokens['anrede'])) {
-            if ($tokens['gender'] == f) {
+            if ($tokens['gender'] == 'f') {
                 $tokens['anrede'] = 'Frau';
             } else {
                 $tokens['anrede'] = 'Herr';
@@ -208,10 +207,10 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         
         // Populate tokens
         foreach ($tokens as $key => $value)
-            $markup = str_replace('{' . $key . '}', $value, $markup);
+            $viewParams['content'] = str_replace('{' . $key . '}', $value, $viewParams['content']);
             
         // Render template
-        $markup = $this->renderHtmlBody($markup);
+        $markup = $this->renderHtmlBody($viewParams);
             
         $html = new \Zend\Mime\Part($markup);
         $html->type = 'text/html';
