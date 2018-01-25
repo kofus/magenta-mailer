@@ -45,6 +45,7 @@ class NewsChannelController extends AbstractActionController
                 if (! $subscriber) {
                     $subscriber = $this->nodes()->createNode('SCB');
                     $subscriber->setEmailAddress($email);
+                    $subscriber->setToken(\Zend\Math\Rand::getString(16, 'abcdefghijklmnopqrstuvwxyz0123456789'));
                     $this->em()->persist($subscriber);
                     $this->em()->flush();
                 }
