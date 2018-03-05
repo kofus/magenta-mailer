@@ -22,7 +22,7 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
         $el = new Element\Textarea('content_html', array(
             'label' => 'Inhalt (HTML)'
         ));
-        $el->setAttribute('class', 'ckeditor');
+        //$el->setAttribute('class', 'ckeditor');
         $this->add($el);
         
         $el = new Element\Textarea('content_text', array(
