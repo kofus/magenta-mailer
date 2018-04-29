@@ -194,23 +194,14 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         return $html;
     }
     
-    public function createHtmlMessage(array $viewParams=array(), array $tokens=array())
+    public function createHtmlMessage(array $viewParams=array(), array $tokens=array(), $layout='default')
     {
-        // Preprocess tokens
-        if (isset($tokens['gender']) && ! isset($tokens['anrede'])) {
-            if ($tokens['gender'] == 'f') {
-                $tokens['anrede'] = 'Frau';
-            } else {
-                $tokens['anrede'] = 'Herr';
-            }
-        }
-        
         // Populate tokens
         foreach ($tokens as $key => $value)
             $viewParams['content'] = str_replace('{' . $key . '}', $value, $viewParams['content']);
             
         // Render template
-        $markup = $this->renderHtmlBody($viewParams);
+        $markup = $this->renderHtmlBody($viewParams, $layout);
             
         $html = new \Zend\Mime\Part($markup);
         $html->type = 'text/html';
