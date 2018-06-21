@@ -268,6 +268,35 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         return $entity;
     }
     
+    /**
+     * Count activated subscriptions for channel or subscriber
+     * @param unknown $entity
+     * @throws \Exception
+     * @return number
+     */
+    public function countSubscriptions($entity)
+    {
+        switch ($entity->getNodeType()) {
+            case 'NCH':
+                $entities = $this->nodes()->createQueryBuilder('SCP')
+                    ->where('n.channel = :channel')
+                    ->setParameter('channel', $entity)
+                    ->andWhere('n.timestampActivation IS NOT NULL');
+                break;
+                
+            case 'SCB':
+                $entities = $this->nodes()->createQueryBuilder('SCP')
+                    ->where('n.subscriber = :subscriber')
+                    ->setParameter('subscriber', $entity)
+                    ->andWhere('n.timestampActivation IS NOT NULL');
+                break;
+                
+            default:
+                throw new \Exception('Unsupported node type: ' . $entity->getNodeType());
+        }
+        return count($entities);
+    }
+    
    
     
     protected $events;

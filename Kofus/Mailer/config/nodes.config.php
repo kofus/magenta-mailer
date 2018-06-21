@@ -5,12 +5,15 @@ return array(
     
     'nodes' => array(
         'enabled' => array(
-            'NCH', 'SCB', 'SCP', 'NS', 'MJ', 'ML'
+            'NCH', 
+            'SCB', 
+            'SCP', // 'NS', 'MJ', 
+            'ML'
         ),
         'available' => array(
             'ML' => array(
-                'label' => 'Mail',
-                'label_pl' => 'Mails',
+                'label' => 'Nachricht',
+                'label_pl' => 'Nachrichten',
                 'entity' => 'Kofus\Mailer\Entity\MailEntity',
                 'controllers' => array(
                     'Kofus\Mailer\Controller\Mail'
@@ -35,11 +38,17 @@ return array(
                             'master' => array(
                                 'class' => 'Kofus\Mailer\Form\Fieldset\Mail\MasterFieldset',
                                 'hydrator' => 'Kofus\Mailer\Form\Hydrator\Mail\MasterHydrator'
-                            )
+                            ),
+                            'dispatch' => array(
+                                'class' => 'Kofus\Mailer\Form\Fieldset\Mail\DispatchFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Mail\DispatchHydrator'
+                            ),
+                            
                         )
                     ),
                 ),
             ),
+            /*
             'MJ' => array(
                 'label' => 'Job',
                 'label_pl' => 'Jobs',
@@ -111,20 +120,20 @@ return array(
                 
                 
             ),
-
+            */
             'NCH' => array(
-                'label' => 'News Channel',
-                'label_pl' => 'News Channels',
-                'entity' => 'Kofus\Mailer\Entity\NewsChannelEntity',
+                'label' => 'Kanal',
+                'label_pl' => 'Kanäle',
+                'entity' => 'Kofus\Mailer\Entity\ChannelEntity',
                 'controllers' => array(
-                    'Kofus\Mailer\Controller\NewsChannel'
+                    'Kofus\Mailer\Controller\Channel'
                 ),
                 'form' => array(
                     'default' => array(
                         'fieldsets' => array(
                             'master' => array(
-                                'class' => 'Kofus\Mailer\Form\Fieldset\NewsChannel\MasterFieldset',
-                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\NewsChannel\MasterHydrator'
+                                'class' => 'Kofus\Mailer\Form\Fieldset\Channel\MasterFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Channel\MasterHydrator'
                             )
                         )
                     )
@@ -157,20 +166,20 @@ return array(
                     
                     
                 )
-            ),
+            ), 
             'SCB' => array(
-                'label' => 'News Subscriber',
-                'label_pl' => 'News Subscribers',
-                'entity' => 'Kofus\Mailer\Entity\NewsSubscriberEntity',
+                'label' => 'Abonnent',
+                'label_pl' => 'Abonnenten',
+                'entity' => 'Kofus\Mailer\Entity\SubscriberEntity',
                 'controllers' => array(
-                    'Kofus\Mailer\Controller\NewsSubscriber'
+                    'Kofus\Mailer\Controller\Subscriber'
                 ),
                 'form' => array(
                     'default' => array(
                         'fieldsets' => array(
                             'master' => array(
-                                'class' => 'Kofus\Mailer\Form\Fieldset\NewsSubscriber\MasterFieldset',
-                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\NewsSubscriber\MasterHydrator'
+                                'class' => 'Kofus\Mailer\Form\Fieldset\Subscriber\MasterFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Subscriber\MasterHydrator'
                             )
                         )
                     )
@@ -200,18 +209,12 @@ return array(
                             )
                         )
                     ),
-                    
-                    
                 )
             ),
-            
             'SCP' => array(
-                'label' => 'News Subscription',
-                'label_pl' => 'News Subscriptions',
-                'entity' => 'Kofus\Mailer\Entity\NewsSubscriptionEntity',
-                'controllers' => array(
-                    'Kofus\Mailer\Controller\NewsSubscription'
-                ),
+                'label' => 'Abonnement',
+                'label_pl' => 'Abonnements',
+                'entity' => 'Kofus\Mailer\Entity\SubscriptionEntity',
                 'form' => array(
                     'default' => array(
                         'fieldsets' => array(
@@ -223,7 +226,6 @@ return array(
                     )
                 )
             ),
-        
         )
     )
 

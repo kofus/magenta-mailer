@@ -9,38 +9,47 @@ use Zend\View\Model\ViewModel;
 class MailController extends AbstractActionController
 {
     
-    public function sentAction()
+    public function listAction()
     {
         $this->archive()->uriStack()->push();
+        $qb = $this->nodes()->createQueryBuilder('ML');
+        $qb->orderBy('n.timestampCreated', 'DESC');
         
-        $qb = $this->nodes()->createQueryBuilder('ML')
-            ->where('n.timestampSent IS NOT NULL')
-            ->orderBy('n.timestampSent', 'DESC');
-        $paginator = $this->paginator($qb);
         return new ViewModel(array(
-            'paginator' => $paginator
+            'paginator' => $this->paginator($qb)
         ));
     }
+    
+    /*
+    public function viewAction()
+    {
+        $this->archive()->uriStack()->push();
+        $entity = $this->nodes()->getNode($this->params('id'), 'ML');
+        return new ViewModel(array(
+            'entity' => $entity
+        ));
+    } */
     
     public function previewAction()
     {
         $node = $this->nodes()->getNode($this->params('id'), 'ML');
         
-        $body = $node->getBody();
-        $headers = $node->getHeaders();
-        $contentType = $headers->get('Content-Type');
+        $html = $this->mailer()->renderHtmlBody(array('content' => $node->getContentHtml()), $node->getTemplate());
         
-        foreach ($body->getParts() as $part) {
-            if (strpos($part->getType(), 'text/html') === false)
-                continue;
-                $s = $part->getContent();
-                if ('base64' == $part->getEncoding())
-                    $s = base64_decode($part->getContent());
-        }
-        return $this->getResponse()->setContent($s);
-        
-        
-        
+        $response = $this->getResponse();
+        $response->setContent($html);
+        return $response;
+    }
+    
+    public function resetAction()
+    {
+        $node = $this->nodes()->getNode($this->params('id'), 'ML');
+        $node->setTimestampScheduled(null);
+        $node->setTimestampSent(null);
+        $node->isEnabled(false);
+        $this->em()->persist($node);
+        $this->em()->flush();
+        return $this->redirect()->toUrl($this->archive()->uriStack()->pop());
     }
     
     

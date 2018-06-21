@@ -1,5 +1,5 @@
 <?php
-namespace Kofus\Mailer\Form\Hydrator\NewsChannel;
+namespace Kofus\Mailer\Form\Hydrator\Channel;
 
 use Zend\Stdlib\Hydrator\HydratorInterface;
 

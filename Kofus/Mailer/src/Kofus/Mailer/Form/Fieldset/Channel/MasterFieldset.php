@@ -1,5 +1,5 @@
 <?php
-namespace Kofus\Mailer\Form\Fieldset\NewsSubscriber;
+namespace Kofus\Mailer\Form\Fieldset\Channel;
 
 use Zend\Form\Element;
 use Zend\Form\Fieldset;
@@ -10,26 +10,24 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface
 
     public function init()
     {
-        $el = new Element\Text('email', array(
-            'label' => 'E-Mail'
+        $el = new Element\Text('title', array(
+            'label' => 'Name'
         ));
         $this->add($el);
         
+        $el = new Element\Checkbox('enabled', array('label' => 'public?'));
+        $this->add($el);
     }
 
     public function getInputFilterSpecification()
     {
         return array(
-            'email' => array(
+            'title' => array(
                 'required' => true,
                 'filters' => array(
                     array(
                         'name' => 'stringtrim'
-                    ),
-                    array('name' => 'stringtolower')
-                ),
-                'validators' => array(
-                    array('name' => 'emailaddress')
+                    )
                 )
             )
         );

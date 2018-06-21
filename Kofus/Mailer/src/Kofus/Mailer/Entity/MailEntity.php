@@ -29,84 +29,112 @@ class MailEntity implements Node\NodeInterface
     /**
      * @ORM\Column()
      */
-    protected $encoding = 'utf-8';
+    protected $subject;
     
-    public function setEncoding($value)
+    public function setSubject($value)
     {
-        $this->encoding = $value; return $this;
+        $this->subject = $value; return $this;
     }
     
-    public function getEncoding()
+    public function getSubject()
     {
-        return $this->encoding;
+        return $this->subject;
+    }
+    
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $enabled = true;
+    
+    public function isEnabled($boolean=null)
+    {
+        if ($boolean !== null)
+            $this->enabled = (bool) $boolean;
+            return $this->enabled;
+    }
+    
+    /**
+     * @ORM\Column(type="text")
+     */
+    protected $contentHtml;
+    
+    public function setContentHtml($value)
+    {
+        $this->contentHtml = $value; return $this;
+    }
+    
+    public function getContentHtml()
+    {
+        return $this->contentHtml;
     }
     
     
     /**
      * @ORM\Column(type="text")
      */
-    protected $headers;
+    protected $contentText;
     
-    public function setHeaders(Headers $headers)
+    public function setContentText($value)
     {
-        $this->headers = $headers->toString();
-        return $this;
+        $this->contentText = $value; return $this;
     }
     
-    public function getHeaders()
+    public function getContentText()
     {
-        if ($this->headers)
-            return Headers::fromString($this->headers);
+        return $this->contentText;
     }
     
     
-	/**
-	 * @ORM\Column()
-	 */
-	protected $subject;
-	
-	public function setSubject($value)
-	{
-	    $this->subject = $value; return $this;
-	}
-	
-	public function getSubject()
-	{
-		return $this->subject;
-	}
-	
-	
-	/**
-	 * @ORM\Column(type="text")
-	 */
-	protected $body;
-	
-	public function setBody($mixed)
-	{
-	    $this->body = serialize($mixed); return $this;
-	}
-	
-	public function getBody()
-	{
-	    if ($this->body)
-	       return unserialize($this->body);
-	}
-	
-	/**
-	 * @ORM\Column(type="text")
-	 */
-	protected $bodyText;
-	
-	public function setBodyText($value)
-	{
-	    $this->bodyText = $value; return $this;
-	}
-	
-	public function getBodyText()
-	{
-	    return $this->bodyText;
-	}
-	
+    /**
+     * @ORM\Column()
+     */
+    protected $template;
+    
+    public function setTemplate($value)
+    {
+        $this->template = $value; return $this;
+    }
+    
+    public function getTemplate()
+    {
+        return $this->template;
+    }
+    
+    
+    /**
+     * @ORM\ManyToMany(targetEntity="Kofus\Mailer\Entity\ChannelEntity", inversedBy="mails")
+     * @ORM\JoinTable(name="kofus_mailer_mails_channels",
+     *     joinColumns={@ORM\JoinColumn(name="mail_id", referencedColumnName="id")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="channel_id", referencedColumnName="id")}
+     * )
+     */
+    protected $channels = array();
+    
+    
+    public function setChannels(array $channels)
+    {
+        $this->channels = $channels; return $this;
+    }
+    
+    public function getChannels()
+    {
+        return $this->channels;
+    }
+    
+    /**
+     * @ORM\Column(nullable=true)
+     */
+    protected $systemId;
+    
+    public function setSystemId($value)
+    {
+        $this->systemId = $value; return $this;
+    }
+    
+    public function getSystemId()
+    {
+        return $this->systemId;
+    }
 	/**
 	 * @ORM\Column(type="datetime")
 	 */

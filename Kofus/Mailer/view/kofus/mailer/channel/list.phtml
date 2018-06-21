@@ -4,16 +4,20 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>Name</th>
+                <th>Kanal</th>
+                <th style="text-align: right">Abonnenten</th>
             </tr>
         </thead>
         <tbody class="rowlink" data-link="row">
             <?php foreach ($this->paginator as $entity) : ?>
-                <tr <?php if (! $entity->isEnabled()) echo 'class="danger"' ?>>
+                <tr <?php if (! $entity->isEnabled()) echo 'class="warning"' ?>>
                     <td>
-                        <a href="<?php echo $this->url('kofus_mailer', array('controller' => 'news-channel', 'action' => 'view', 'id' => $entity->getNodeId())) ?>">
+                        <a href="<?php echo $this->url('kofus_mailer', array('controller' => 'channel', 'action' => 'view', 'id' => $entity->getNodeId())) ?>">
 	                        <?php echo $this->escapeHtml($entity->getTitle()) ?>
 	                    </a>
+                    </td>
+                    <td style="text-align: right">
+                    	<?php echo $this->mailer()->countSubscriptions($entity) ?>
                     </td>
                 </tr>
             <?php endforeach ?>
