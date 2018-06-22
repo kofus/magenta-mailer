@@ -3,11 +3,11 @@
 namespace Kofus\Mailer;
 
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
-use Zend\Mvc\MvcEvent;
 use Zend\Console\Adapter\AdapterInterface as Console;
+use Zend\ModuleManager\Feature\ConsoleUsageProviderInterface;
 
 
-class Module implements AutoloaderProviderInterface
+class Module implements AutoloaderProviderInterface, ConsoleUsageProviderInterface
 {
     public function getAutoloaderConfig()
     {
@@ -17,7 +17,6 @@ class Module implements AutoloaderProviderInterface
             ),
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
-		    // if we're in a namespace deeper than one level we need to fix the \ in the path
                     __NAMESPACE__ => __DIR__ . '/src/' . str_replace('\\', '/' , __NAMESPACE__),
                 ),
             ),
@@ -45,6 +44,20 @@ class Module implements AutoloaderProviderInterface
                 if (isset($route['options']['help_text']))
                     $usage[$route['options']['route']] = $route['options']['help_text'];
             }
+        }
+        
+        $batches = array();
+        if (isset($config['service_manager']['invokables'])) {
+            foreach ($config['service_manager']['invokables'] as $serviceName => $delta) {
+                if (preg_match('/Batch$/', $serviceName)) {
+                    $batches[] = $serviceName;
+                }
+            }
+        }
+        
+        if ($batches) {
+            $usage[] = array('<batch>',  implode(' | ', $batches));
+            
         }
         return $usage;
     }

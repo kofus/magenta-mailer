@@ -3,14 +3,14 @@ return array(
     'console' => array(
         'router' => array(
             'routes' => array(
-                'batch-send' => array(
+                '_run-batch' => array(
                     'options' => array(
-                        'route' => 'mailer send',
-                        'help_text' => 'Send batch mails.',
+                        'route' => 'batch <batch>',
+                        'help_text' => 'Run any batch script by its ZF2 service name.',
                         'defaults' => array(
-                            'action' => 'send',
+                            'action' => 'runBatch',
                             'controller' => 'console',
-                            '__NAMESPACE__' => 'Kofus\Mailer\Controller'
+                            '__NAMESPACE__' => 'Kofus\System\Controller'
                         ),
                     )
                 ),

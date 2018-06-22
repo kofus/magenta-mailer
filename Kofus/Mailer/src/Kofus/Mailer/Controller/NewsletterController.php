@@ -10,89 +10,60 @@ class NewsletterController extends AbstractActionController
 {
     public function optInAction()
     {
-        $activationToken = $this->params('id');
-        $subscriptions = $this->mailer()->optIn($activationToken);
-        return new ViewModel(array(
-            'subscriptions' => $subscriptions
-        ));
-    }
-    
-    public function editAction()
-    {
-        $token = $this->params('id');
-        $subscriber = $this->nodes()->getRepository('SCB')->findOneBy(array('token' => $token));
-        $allChannels = $this->getServiceLocator()->get('KofusNodeService')->getRepository('NCH')->findAll();
+        $subscriber = $this->nodes()->getRepository('SCB')->findOneBy(array('uriSegment' => $this->params('id')));
+        $session = new \Zend\Session\Container('Kofus_Mailer_Newsletter');
         
-        $channels = array();
-        foreach ($allChannels as $channel) {
-            if ($channel->isEnabled()) {
-                $channels[] = $channel;
-                continue;
-            }
-            $subscription = $this->nodes()->getRepository('SCP')->findOneBy(array('subscriberId' => $subscriber->getNodeId(), 'channel' => $channel));
-            if ($subscription) {
-                $channels[] = $channel; continue;
-            }
+        $subscriptions = $this->nodes()->createQueryBuilder('SCP')
+            ->where('n.subscriber = :subscriber')
+            ->setParameter('subscriber', $subscriber)
+            ->getQuery()->getResult();
+        
+        $publicChannels = $this->nodes()->getRepository('NCH')->findBy(array('enabled' => true));
+        
+        $voChannels = array();
+        foreach ($subscriptions as $subscription) {
+            $channel = $subscription->getChannel();
+            $voChannels[$channel->getNodeId()] = $channel->getTitle();
         }
-        $fieldset = new \Kofus\Mailer\Form\Fieldset\Newsletter\AdministerFieldset();
-        $fieldset->setChannels($channels);
+        foreach ($publicChannels as $channel) {
+            $voChannels[$channel->getNodeId()] = $channel->getTitle();
+        }
+        $session->voChannels = $voChannels;
         
-        $form = $this->fb()->setConfig(array(
-                'sections' =>
-                    array('administer' => 
-                            array(
-                                'fieldset' => $fieldset,
-                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Newsletter\AdministerHydrator'
-                            )
-                    ),             
-                    'element_options' => array(
-                        'column-size' => 'sm-12',
-                        'label_attributes' => array(
-                            'class' => 'col-sm-12'
-                        )
+        $form = $this->fb()
+            ->setConfig(array('sections' =>
+                array('subscribe' => array(
+                    'fieldset' => 'Kofus\Mailer\Form\Fieldset\Newsletter\SubscriptionsFieldset',
+                    'hydrator' => 'Kofus\Mailer\Form\Hydrator\Newsletter\SubscriptionsHydrator'
+                )),             'element_options' => array(
+                    'column-size' => 'sm-12',
+                    'label_attributes' => array(
+                        'class' => 'col-sm-12'
                     )
                 )
-            )
-        ->setObject($subscriber)
-        ->buildForm();
+            ))
+            ->setObject($subscriber)
+            ->buildForm('formNewsletterSubscribe');
         
-        $msgs = array();
         if ($this->getRequest()->isPost()) {
-            $data = $this->getRequest()->getPost();
-            $form->setData($data);
+            $form->setData($this->getRequest()->getPost());
             if ($form->isValid()) {
-                $subscriptions = array();
-                foreach ($this->nodes()->getRepository('SCP')->findBy(array('subscriberId' => $subscriber->getNodeId())) as $subscription) {
-                    $subscriptions[$subscription->getChannel()->getNodeId()] = $subscription;                    
-                }
-                
-                $channelIds = array();
-                if (isset($data['administer']['channels']))
-                    $channelIds = $form->get('administer')->get('channels')->getValue();
-                foreach ($allChannels as $channel) {
-                    $channelId = $channel->getNodeId();
-                    if (isset($subscriptions[$channelId]) && ! in_array($channelId, $channelIds)) {
-                        $msgs[] = 'Sie erhalten ab sofort keine weiteren Benachrichtigungen zu "' . $channel->getTitle() . '"';
-                        $this->em()->remove($subscriptions[$channelId]);
-                    } elseif (! isset($subscriptions[$channelId]) && in_array($channelId, $channelIds)) {
-                        $msgs[] = 'Sie erhalten ab sofort Benachrichtungen zu "' . $channel->getTitle() . '"';
-                        $subscription = new \Kofus\Mailer\Entity\NewsSubscriptionEntity();
-                        $subscription->setChannel($channel)
-                            ->setStatus('active')
-                            ->setSubscriberId($subscriber->getNodeId());
-                        $this->em()->persist($subscription);
-                    }
-                }
+                $this->em()->persist($subscriber);
                 $this->em()->flush();
+                $this->flashMessenger()->addSuccessMessage('Vielen Dank! Ihre Einstellungen wurden gespeichert.');
+                return $this->redirect()->toUrl('/');
             }
         }
         
         return new ViewModel(array(
             'subscriber' => $subscriber,
-            'form' => $form,
-            'msgs' => $msgs
+            'form' => $form
         ));
-        
+    }
+    
+    public function editAction()
+    {
+        return $this->forward()->dispatch('Kofus\Mailer\Controller\Newsletter', array('action' => 'opt-in', 'id' => $this->params('id')));     
         
     }
 }

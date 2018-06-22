@@ -21,7 +21,18 @@
 	                    </a>
                     </td>
                     <td>
-                    	
+                    	<?php
+                            $subscriptions = $this->nodes()->createQueryBuilder('SCP')
+                                ->where('n.subscriber = :subscriber')
+                                ->setParameter('subscriber', $entity)
+                                ->andWhere('n.timestampActivation IS NOT NULL')
+                                ->getQuery()->getResult();
+                            $channels = array();
+                            foreach ($subscriptions as $subscription) {
+                                $channels[] = $subscription->getChannel()->getTitle();
+                            }
+                            echo $this->escapeHtml(implode(', ', $channels));
+                    	?>
                     </td>
                 </tr>
             <?php endforeach ?>

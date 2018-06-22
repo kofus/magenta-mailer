@@ -12,7 +12,13 @@
         </thead>
         <tbody >
             <?php foreach ($this->paginator as $entity) : ?>
-                <tr <?php if ($entity->isEnabled() && $entity->getTimestampScheduled() && ! $entity->getTimestampSent()) echo 'class="warning"' ?>>
+                <tr <?php 
+                        if ($entity->isEnabled() && $entity->getTimestampScheduled() && ! $entity->getTimestampSent()) {
+                            echo 'class="warning"';
+                        } elseif ($entity->getTimestampSent()) {
+                            echo 'class="success"';
+                        }
+                    ?>>
                     <td>
 	                        <?php echo $this->escapeHtml($entity->getSubject()) ?>
                     </td>

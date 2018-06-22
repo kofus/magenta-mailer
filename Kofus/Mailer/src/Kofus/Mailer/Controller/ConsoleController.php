@@ -29,7 +29,7 @@ class ConsoleController extends AbstractActionController
     
     public function sendAction()
     {
-        $qb = $this->nodes()->createQueryBuilder('MJ');
+        $qb = $this->nodes()->createQueryBuilder('ML');
         $qb->where('n.enabled = true')
             ->andWhere('n.status = 0')
             ->andWhere('n.timestampScheduled <= :now')

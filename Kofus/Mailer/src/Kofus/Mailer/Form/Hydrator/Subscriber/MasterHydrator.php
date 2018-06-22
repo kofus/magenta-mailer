@@ -26,7 +26,8 @@ class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 	    return array(
 	    	'email' => $object->getEmailAddress(),
 	        'name' => $object->getName(),
-	        'channels' => $channels
+	        'channels' => $channels,
+	        'uri_segment' => $object->getUriSegment()
 	    );
 	}
 
@@ -35,7 +36,6 @@ class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 	    $channelIds = array();
 	    if (isset($data['channels']))
 	        $channelIds = $data['channels'];
-	    
         	        
 	    $subscriptions = $this->nodes()->getRepository('SCP')->findBy(array('subscriber' => $object));
 	    $channels = $this->nodes()->getRepository('NCH')->findAll();
@@ -55,16 +55,17 @@ class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 	            
 	        } else {
 	            // Delete subscription
-	            
 	            if ($subscription) {
 	                $this->em()->remove($subscription);
 	            }
-	            
-	            
 	        }
 	    }
 	    
+	    $uriSegment = $data['uri_segment'];
+	    if (! $data['uri_segment'])
+	        $uriSegment = \Zend\Math\Rand::getString(32, 'abcdefghijklmnopqrstuvwxyz0123456789');
 	    
+	    $object->setUriSegment($uriSegment);
         $object->setEmailAddress($data['email']);
         $object->setName($data['name']);
 		return $object;

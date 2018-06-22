@@ -4,15 +4,15 @@ namespace Kofus\Mailer\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Kofus\System\Node\NodeInterface;
-use Kofus\Mailer\NewsSubscriberInterface;
+
 
 
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="kofus_mailer_subscribers", uniqueConstraints={@ORM\UniqueConstraint(name="emailAddress", columns={"emailAddress"}), @ORM\UniqueConstraint(name="token", columns={"token"})})
+ * @ORM\Table(name="kofus_mailer_subscribers", uniqueConstraints={@ORM\UniqueConstraint(name="emailAddress", columns={"emailAddress"}), @ORM\UniqueConstraint(name="uriSegment", columns={"uriSegment"})})
  */
-class SubscriberEntity implements NodeInterface, NewsSubscriberInterface
+class SubscriberEntity implements NodeInterface
 {
     /**
      * @ORM\Id
@@ -88,16 +88,16 @@ class SubscriberEntity implements NodeInterface, NewsSubscriberInterface
     /**
      * @ORM\Column()
      */
-    protected $token;
+    protected $uriSegment;
     
-    public function setToken($value)
+    public function setUriSegment($value)
     {
-        $this->token = $value; return $this;
+        $this->uriSegment = $value; return $this;
     }
     
-    public function getToken()
+    public function getUriSegment()
     {
-        return $this->token;
+        return $this->uriSegment;
     }
     
     

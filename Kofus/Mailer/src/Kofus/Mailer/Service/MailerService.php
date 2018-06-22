@@ -3,14 +3,11 @@ namespace Kofus\Mailer\Service;
 
 use Zend\Mail;
 use Kofus\System\Service\AbstractService;
-use Zend\ServiceManager\ServiceLocatorAwareInterface;
-use Kofus\Mailer\Entity\NewsgroupEntity;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
-use Kofus\Mailer\Entity\NewsSubscriberEntity;
-use Kofus\Mailer\Entity\NewsSubscriptionEntity;
-use Kofus\Mailer\Entity\NewsEntity;
+use Kofus\Mailer\Entity\SubscriberEntity;
+
 
 
 class MailerService extends AbstractService implements EventManagerAwareInterface
@@ -85,50 +82,34 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
      * @param NewsSubscriberEntity $subscriber
      * @param array $channels
      */
-    public function subscribe($subscriberId, array $channels=array(), $triggerOptIn=false)
+    public function sendOptInmail(SubscriberEntity $subscriber)
     {
-        $subscriber = $this->nodes()->getNode($subscriberId);
-        if (! $subscriber || ! $subscriber instanceof \Kofus\Mailer\NewsSubscriberInterface)
-            throw new \Exception($subscriberId . ' is not a valid subscriber');
-        $token = \Zend\Math\Rand::getString(16, 'abcdefghijklmnopqrstuvwxyz0123456789');
-        foreach ($channels as $channel) {
-            $existingSubscription = $this->nodes()->getRepository('SCP')->findOneBy(array('channel' => $channel, 'subscriberId' => $subscriberId));
+            $urlHelper = $this->getPhpRenderer()->getHelperPluginManager()->get('url');
+            $link = $urlHelper('kofus_mailer', array('controller' => 'newsletter', 'action' => 'opt-in', 'id' => $subscriber->getUriSegment()), array('force_canonical' => true));
+            $tokens = $subscriber->getMailerParams();
+            $tokens['host'] = $_SERVER['HTTP_HOST'];
+            $tokens['link'] = $link;
             
-            if (! $existingSubscription) {
-                $subscription = new NewsSubscriptionEntity();
-                $subscription->setSubscriberId($subscriberId);
-                $subscription->setChannel($channel);
-            } else {
-                $subscription = $existingSubscription;
-            }
-            
-            if (! $existingSubscription) {
-                if (! $triggerOptIn)
-                    $subscription->setTimestampActivationSubscriber(new \DateTime());
-                $subscription->setActivationToken($token);
-                $this->em()->persist($subscription);
-                $this->em()->flush();
-            }
-            
-            // Send mail with activation link
-            if ($triggerOptIn) {
-                $urlHelper = $this->getPhpRenderer()->getHelperPluginManager()->get('url');
-                $link = $urlHelper('kofus_mailer', array('controller' => 'newsletter', 'action' => 'opt-in', 'id' => $token), array('force_canonical' => true));
-                $tokens = $subscriber->getMailerParams();
-                $tokens['host'] = $_SERVER['HTTP_HOST'];
-                $tokens['link'] = $link;
-                $news = $this->nodes()->getRepository('NS')->findOneBy(array('systemId' => 'OPT_IN'));
-                if ($news) {
-                    $msg = $this->createHtmlMessage(array('content' => $news->getContentHtml()), $tokens);
-                    $msg->setSubject($news->getSubject());
+            if ($subscriber->getMailerParam('gender') && $subscriber->getMailerParam('lastname')) {
+                if ('m' == $subscriber->getMailerParam('gender')) {
+                    $tokens['name'] = 'Herr ' . htmlentities($subscriber->getMailerParam('lastname'));
                 } else {
-                    $msg = $this->createHtmlMessage(array('content' => '<p>Guten Tag,</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>'), $tokens);
-                    $msg->setSubject('Ihre Newsletter-Anmeldung');
+                    $tokens['name'] = 'Frau ' . htmlentities($subscriber->getMailerParam('lastname'));
                 }
-                $msg->setTo($subscriber->getEmailAddress());
-                $this->send($msg);
+            } else {
+                $tokens['name'] = htmlentities($subscriber->getName());
             }
-        }
+            
+            $mail = $this->nodes()->getRepository('ML')->findOneBy(array('systemId' => 'OPT_IN'));
+            if ($mail) {
+                $msg = $this->createHtmlMessage(array('content' => $mail->getContentHtml()), $tokens);
+                $msg->setSubject($news->getSubject());
+            } else {
+                $msg = $this->createHtmlMessage(array('content' => '<p>Guten Tag {name},</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>'), $tokens);
+                $msg->setSubject('Ihre Newsletter-Anmeldung');
+            }
+            $msg->setTo($subscriber->getEmailAddress());
+            $this->send($msg);
     }
     
     public function unsubscribe($subscriberId, array $channels=array())
@@ -244,7 +225,7 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         $transport->send($msg);
     }
     
-    public function enqueue(\Zend\Mail\Message $msg, \DateTime $scheduled=null, $entity=null)
+    public function ____enqueue(\Zend\Mail\Message $msg, \DateTime $scheduled=null, $entity=null)
     {
         if (! $entity)
             $entity = new \Kofus\Mailer\Entity\MailEntity();

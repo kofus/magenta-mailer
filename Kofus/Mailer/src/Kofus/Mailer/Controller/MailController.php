@@ -8,7 +8,6 @@ use Zend\View\Model\ViewModel;
 
 class MailController extends AbstractActionController
 {
-    
     public function listAction()
     {
         $this->archive()->uriStack()->push();
@@ -19,16 +18,6 @@ class MailController extends AbstractActionController
             'paginator' => $this->paginator($qb)
         ));
     }
-    
-    /*
-    public function viewAction()
-    {
-        $this->archive()->uriStack()->push();
-        $entity = $this->nodes()->getNode($this->params('id'), 'ML');
-        return new ViewModel(array(
-            'entity' => $entity
-        ));
-    } */
     
     public function previewAction()
     {

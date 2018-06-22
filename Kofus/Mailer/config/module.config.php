@@ -9,6 +9,7 @@ return array(
             'Kofus\Mailer\Controller\Mail' => 'Kofus\Mailer\Controller\MailController',
             'Kofus\Mailer\Controller\Subscriber' => 'Kofus\Mailer\Controller\SubscriberController',
             'Kofus\Mailer\Controller\Console' => 'Kofus\Mailer\Controller\ConsoleController',
+            'Kofus\Mailer\Controller\Newsletter' => 'Kofus\Mailer\Controller\NewsletterController',
         )
     ),
     
@@ -70,7 +71,8 @@ return array(
     'service_manager' => array(
         'invokables' => array(
             'KofusMailerService' => 'Kofus\Mailer\Service\MailerService',
-            'KofusMailerErrorListener' => 'Kofus\Mailer\Listener\ErrorListener'
+            'KofusMailerErrorListener' => 'Kofus\Mailer\Listener\ErrorListener',
+            'KofusMailerSendMailBatch' => 'Kofus\Mailer\Batch\SendMailBatch'
         )
     ),
     

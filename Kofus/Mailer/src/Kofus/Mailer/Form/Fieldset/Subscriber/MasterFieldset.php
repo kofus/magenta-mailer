@@ -32,6 +32,12 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
         $el = new Element\MultiCheckbox('channels', array('label' => 'Kanäle', 'node-type' => 'NCH'));
         $el->setValueOptions($valueOptions);
         $this->add($el);
+        
+        $el = new Element\Text('uri_segment', array('label' => 'URI-Segment'));
+        $el->setAttribute('placeholder', 'wird automatisch generiert, wenn leer...');
+        $this->add($el);
+           
+        
     }
 
     public function getInputFilterSpecification()
@@ -58,6 +64,12 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
             ),
             'channels' => array(
                 'required' => false
+            ),
+            'uri_segment' => array(
+                'required' => false,
+                'filters' => array(
+                    array('name' => 'alnum')
+                )
             )
         );
     }
