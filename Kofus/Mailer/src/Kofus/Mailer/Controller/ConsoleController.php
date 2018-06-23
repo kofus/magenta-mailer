@@ -12,68 +12,95 @@ use Kofus\Media\Entity\PdfEntity;
 
 class ConsoleController extends AbstractActionController
 {
-    
-    protected function processMailerParams(array $params)
+    /**
+     * First column must contain the email address
+     * @throws \Exception
+     */
+    public function importSubscribersAction()
     {
-        if (isset($params['gender'])) {
-            if ($params['gender'] == 'm') {
-                $params['Lieber Herr'] = 'Lieber Herr';
-                
-            } elseif ($params['gender'] == 'f') {
-                $params['Lieber Herr'] = 'Liebe Frau';
-            }
-        }
-        return $params;
-    }
-    
-    
-    public function sendAction()
-    {
-        $qb = $this->nodes()->createQueryBuilder('ML');
-        $qb->where('n.enabled = true')
-            ->andWhere('n.status = 0')
-            ->andWhere('n.timestampScheduled <= :now')
-            ->setParameter('now', new \DateTime());
-        $jobs = $qb->getQuery()->getResult();
+        // Init
+        $handle = fopen($this->params('filename'), 'r');
+        if (! $handle)
+            throw new \Exception('File could not be opened: ' . $this->params('filename'));
         
-        foreach ($jobs as $job) {
-            $news = $job->getNews();
-            echo 'Job ' . $job . PHP_EOL;
-            echo 'News ' . $news . PHP_EOL;
+        $channel = $this->nodes()->getNode($this->params('channel'), 'NCH');
+        if (! $channel)
+            throw new \Exception('Channel not found: ' . $this->params('channel'));
+        
+        $validator = new \Zend\Validator\EmailAddress();
+        $now = \DateTime::createFromFormat('U', REQUEST_TIME);
+        
+        $labels = fgetcsv($handle);
+        $row = fgetcsv($handle);
+        while ($row) {
             
-            foreach ($job->getChannels() as $channel) {
-                echo 'Channel ' . $channel . PHP_EOL;
-                echo PHP_EOL . 'Start...' . PHP_EOL;
+            // Get email address
+            $email = trim(strtolower($row[0]));
+            if (! $validator->isValid($email))
+                throw new \Exception('First column must contain a valid email address: ' . $email);
+
+            // subscriber entity
+            $isNew = false;
+            $subscriber = $this->nodes()->getRepository('SCB')->findOneBy(array('emailAddress' => $email));
+            if (! $subscriber) {
+                $isNew = true;
+                $subscriber = new \Kofus\Mailer\Entity\SubscriberEntity();
+                $subscriber->setEmailAddress($email);
+            }
+            if (! $subscriber->getUriSegment())
+                $subscriber->setUriSegment(\Zend\Math\Rand::getString(32, 'abcdefghijlkmnopqrstuvwxyz0123456789'));
+            
+            // Mailer params
+            foreach ($row as $index => $value) {
+                if ($index == 0) continue;
+                $label = $labels[$index];
                 
-                $subscriptions = $this->nodes()->getRepository('SCP')->findBy(array('channel' => $channel));
-                foreach ($subscriptions as $subscription) {
-                    $subscriberId = $subscription->getSubscriberId();
-                    $subscriber = $this->nodes()->getNode($subscriberId);
-                    
-                    echo $subscriber . ' ' . $subscriber->getEmailAddress() . PHP_EOL;
-                    $mailerParams = $this->processMailerParams($subscriber->getMailerParams());
-                    $viewParams = array(
-                        'content' => $news->getContentHtml(),
-                        'subscriber' => $subscriber
-                    );
-                    $msg = $this->mailer()->createHtmlMessage($viewParams, $mailerParams);
-                    foreach ($job->getParams() as $method => $value) {
-                        $method = 'set' . $method;
-                        $msg->$method($value);
-                    }
-                    $msg->addTo($subscriber->getEmailAddress());
-                    $msg->setSubject($news->getSubject());
-                    
-                    sleep(5);
-                    $this->mailer()->enqueue($msg);
+                switch ($label) {
+                    default:
+                        $subscriber->setMailerParam($label, $value);        
                 }
             }
-            echo PHP_EOL;
-            $job->setStatus(2);
-            $job->setTimestampCompleted(new \DateTime());
-            $this->em()->persist($job);
-            $this->em()->flush();
+            
+            // Name?
+            $name = array();
+            $index = array_search('firstname', $labels);
+            if ($index) $name[] = $row[$index];
+            $index = array_search('lastname', $labels);
+            if ($index) $name[] = $row[$index];
+            if ($name)
+                $subscriber->setName(implode(' ', $name));
+
+            // Persist subscriber
+            $this->em()->persist($subscriber);
+            
+            // Subscription
+            $subscription = $this->nodes()->getRepository('SCP')->findOneBy(array('subscriber' => $subscriber, 'channel' => $channel));
+            if (! $subscription) {
+                $subscription = new \Kofus\Mailer\Entity\SubscriptionEntity();
+                $subscription->setSubscriber($subscriber)->setChannel($channel);
+            }
+            if (! $subscription->getTimestampActivation())
+                $subscription->setTimestampActivation($now);
+            $this->em()->persist($subscription);
+            
+            // Debug
+            if ($isNew) {
+                print 'NEW SUBSCRIBER ' . $subscriber . PHP_EOL;
+            } else {
+                print 'UPDATE SUBSCRIBER ' . $subscriber . PHP_EOL;
+            }
+            
+            
+            $row = fgetcsv($handle);
         }
-        echo PHP_EOL;
+        
+        $this->em()->flush();
+        
+        print 'ALL DONE' . PHP_EOL;
     }
+    
+    
+    
+    
+   
 }

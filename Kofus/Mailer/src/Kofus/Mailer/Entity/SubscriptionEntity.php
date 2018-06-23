@@ -59,22 +59,6 @@ class SubscriptionEntity implements NodeInterface
     }
     
     /**
-     * @ORM\Column(length=32, nullable=true)
-     */
-    protected $activationToken;
-    
-    public function setActivationToken($value)
-    {
-        $this->activationToken = $value; return $this;
-    }
-    
-    public function getActivationToken()
-    {
-        return $this->activationToken;
-    }
-    
-    
-    /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     protected $timestampActivation;

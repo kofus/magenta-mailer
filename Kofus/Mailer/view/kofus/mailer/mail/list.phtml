@@ -13,7 +13,7 @@
         <tbody >
             <?php foreach ($this->paginator as $entity) : ?>
                 <tr <?php 
-                        if ($entity->isEnabled() && $entity->getTimestampScheduled() && ! $entity->getTimestampSent()) {
+                        if ($entity->isEnabled() && $entity->getTimestampScheduled()) {
                             echo 'class="warning"';
                         } elseif ($entity->getTimestampSent()) {
                             echo 'class="success"';

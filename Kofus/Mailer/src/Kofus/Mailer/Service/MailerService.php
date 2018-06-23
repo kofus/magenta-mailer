@@ -177,9 +177,7 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
     
     public function createHtmlMessage(array $viewParams=array(), array $tokens=array(), $layout='default')
     {
-        // Populate tokens
-        foreach ($tokens as $key => $value)
-            $viewParams['content'] = str_replace('{' . $key . '}', $value, $viewParams['content']);
+        $viewParams['content'] = $this->tokenize($viewParams['content'], $tokens);
             
         // Render template
         $markup = $this->renderHtmlBody($viewParams, $layout);
@@ -201,6 +199,29 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         }
         
         return $msg;
+    }
+    
+    public function tokenize($s, array $tokens)
+    {
+        foreach ($tokens as $key => $value)
+            $s = str_replace('{' . $key . '}', $value, $s);
+            
+
+        if (isset($tokens['gender']) && isset($tokens['lastname'])) {
+            if ($tokens['gender'] == 'f') {
+                $name = 'Sehr geehrte Frau ';
+            } else {
+                $name = 'Sehr geehrter Herr ';
+            }
+            
+            if (isset($tokens['title']))
+                $name .= $tokens['title'] . ' ';
+            $name .= $tokens['lastname'];
+            
+            $s = str_replace('{sehr_geehrt}', $name, $s);
+        }
+        
+        return $s;
     }
     
     
@@ -262,14 +283,16 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
                 $entities = $this->nodes()->createQueryBuilder('SCP')
                     ->where('n.channel = :channel')
                     ->setParameter('channel', $entity)
-                    ->andWhere('n.timestampActivation IS NOT NULL');
+                    ->andWhere('n.timestampActivation IS NOT NULL')
+                    ->getQuery()->getResult();
                 break;
                 
             case 'SCB':
                 $entities = $this->nodes()->createQueryBuilder('SCP')
                     ->where('n.subscriber = :subscriber')
                     ->setParameter('subscriber', $entity)
-                    ->andWhere('n.timestampActivation IS NOT NULL');
+                    ->andWhere('n.timestampActivation IS NOT NULL')
+                    ->getQuery()->getResult();
                 break;
                 
             default:

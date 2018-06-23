@@ -12,7 +12,7 @@ use Zend\Mail\Headers;
  * @ORM\Entity
  * @ORM\Table(name="kofus_mailer_mails")
  */
-class MailEntity implements Node\NodeInterface
+class MailEntity implements Node\NodeInterface, Node\NodeCreatedInterface
 {
     /**
      * @ORM\Id

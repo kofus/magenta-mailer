@@ -31,4 +31,5 @@ class SubscriberController extends AbstractActionController
             'subscriptions' => $subscriptions
         ));
     }
+    
 }

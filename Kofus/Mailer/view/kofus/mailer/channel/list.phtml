@@ -1,4 +1,4 @@
-<?php echo $this->nodeNavigation('NCH', 'list')->render() ?>
+<?php echo $this->nodeNavigation('NCH', 'list', 'Kanäle (' . $this->paginator->getTotalItemCount() . ')')->render() ?>
 
 <?php if ($this->paginator->count()) : ?>
     <table class="table table-hover">

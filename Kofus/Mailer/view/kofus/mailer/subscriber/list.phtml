@@ -1,4 +1,4 @@
-<?php echo $this->nodeNavigation('SCB', 'list')->render() ?>
+<?php echo $this->nodeNavigation('SCB', 'list', 'Abonnenten (' . $this->paginator->getTotalItemCount() . ')')->render() ?>
 
 <?php if ($this->paginator->count()) : ?>
     <table class="table table-hover">
@@ -7,6 +7,7 @@
                 <th>Name</th>
                 <th>E-Mail</th>
                 <th>Abonnements</th>
+                <th>Abonnent seit</th>
             </tr>
         </thead>
         <tbody class="rowlink" data-link="row">
@@ -33,6 +34,9 @@
                             }
                             echo $this->escapeHtml(implode(', ', $channels));
                     	?>
+                    </td>
+                    <td>
+                    	<?php echo $this->dateFormat($entity->getTimestampCreated(), \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT) ?>
                     </td>
                 </tr>
             <?php endforeach ?>

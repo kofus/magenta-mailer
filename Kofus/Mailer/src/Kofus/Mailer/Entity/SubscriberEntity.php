@@ -3,7 +3,7 @@
 namespace Kofus\Mailer\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Kofus\System\Node\NodeInterface;
+use Kofus\System\Node;
 
 
 
@@ -12,7 +12,7 @@ use Kofus\System\Node\NodeInterface;
  * @ORM\Entity
  * @ORM\Table(name="kofus_mailer_subscribers", uniqueConstraints={@ORM\UniqueConstraint(name="emailAddress", columns={"emailAddress"}), @ORM\UniqueConstraint(name="uriSegment", columns={"uriSegment"})})
  */
-class SubscriberEntity implements NodeInterface
+class SubscriberEntity implements Node\NodeInterface, Node\NodeCreatedInterface
 {
     /**
      * @ORM\Id
@@ -100,6 +100,20 @@ class SubscriberEntity implements NodeInterface
         return $this->uriSegment;
     }
     
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    protected $timestampCreated;
+    
+    public function setTimestampCreated(\DateTime $dt)
+    {
+        $this->timestampCreated = $dt; return $this;
+    }
+    
+    public function getTimestampCreated()
+    {
+        return $this->timestampCreated;
+    }
     
     
 	public function getNodeType()

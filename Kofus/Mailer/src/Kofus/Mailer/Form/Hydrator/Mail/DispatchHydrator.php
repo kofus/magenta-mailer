@@ -27,8 +27,10 @@ class DispatchHydrator implements HydratorInterface, ServiceLocatorAwareInterfac
 	public function hydrate(array $data, $object)
 	{
 	    $dt = null;
-	    if (isset($data['timestamp_scheduled']))
+	    if (isset($data['timestamp_scheduled'])) {
 	        $dt = \DateTime::createFromFormat('Y-m-d H:i:s', $data['timestamp_scheduled']);
+	        $object->setTimestampSent(null);
+	    }
 	    
 	    $object->isEnabled($data['enabled']);
 	    $object->setTimestampScheduled($dt);

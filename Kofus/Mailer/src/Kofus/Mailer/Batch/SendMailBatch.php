@@ -39,7 +39,7 @@ class SendMailBatch extends AbstractBatch
                         'content' => $mail->getContentHtml(),
                         'subscriber' => $subscriber
                     );
-                    $msg = $this->mailer()->createHtmlMessage($viewParams, array(), $mail->getTemplate());
+                    $msg = $this->mailer()->createHtmlMessage($viewParams, $subscriber->getMailerParams(), $mail->getTemplate());
                     $msg->addTo($subscriber->getEmailAddress(), $subscriber->getName());
                     $msg->setSubject($mail->getSubject());
                     
@@ -49,6 +49,8 @@ class SendMailBatch extends AbstractBatch
             }
             
             $mail->setTimestampSent($now);
+            $mail->setTimestampScheduled(null);
+            $mail->isEnabled(false);
             $this->em()->persist($mail);
         }
         $this->em()->flush();
