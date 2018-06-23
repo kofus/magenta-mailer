@@ -92,7 +92,7 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
                 $msg = $this->createHtmlMessage(array('content' => $mail->getContentHtml()), $tokens);
                 $msg->setSubject($news->getSubject());
             } else {
-                $msg = $this->createHtmlMessage(array('content' => '<p>{sehr_geehrt},</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p><p>Mit freundlichen Grüßen</p>'), $tokens);
+                $msg = $this->createHtmlMessage(array('content' => '<p>{sehr_geehrt},</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</a></p><p>Mit freundlichen Grüßen</p>'), $tokens);
                 $msg->setSubject('Ihre Newsletter-Anmeldung');
             }
             $msg->setTo($subscriber->getEmailAddress());
