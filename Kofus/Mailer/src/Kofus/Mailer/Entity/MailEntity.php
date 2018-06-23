@@ -70,7 +70,7 @@ class MailEntity implements Node\NodeInterface, Node\NodeCreatedInterface
     
     
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     protected $contentText;
     
