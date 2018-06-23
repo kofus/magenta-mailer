@@ -12,19 +12,6 @@ use Kofus\Mailer\Entity\SubscriberEntity;
 
 class MailerService extends AbstractService implements EventManagerAwareInterface
 {
-    /*
-    protected $transport;
-    
-    protected function sendmail($msg)
-    {
-        if (! $this->transport)
-            $this->transport = new Mail\Transport\Sendmail();
-        
-        $this->getEventManager()->trigger('beforeSend', $this, array($msg));
-        $this->transport->send($msg);
-        $this->getEventManager()->trigger('send', $this, array($msg));
-    } */
-    
     /**
      * Render markup into template, supporting view helpers
      * @param string $markup
@@ -105,7 +92,7 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
                 $msg = $this->createHtmlMessage(array('content' => $mail->getContentHtml()), $tokens);
                 $msg->setSubject($news->getSubject());
             } else {
-                $msg = $this->createHtmlMessage(array('content' => '<p>Guten Tag {name},</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p>'), $tokens);
+                $msg = $this->createHtmlMessage(array('content' => '<p>{sehr_geehrt},</p><p>vielen Dank für Ihre Newsletter-Registrierung auf <a href="{host}">{host}</a>.</p><p>Bitte klicken Sie auf folgenden Link, um Ihre Anmeldung abzuschließen:</p><p><a href="{link}">{link}</p><p>Mit freundlichen Grüßen</p>'), $tokens);
                 $msg->setSubject('Ihre Newsletter-Anmeldung');
             }
             $msg->setTo($subscriber->getEmailAddress());
