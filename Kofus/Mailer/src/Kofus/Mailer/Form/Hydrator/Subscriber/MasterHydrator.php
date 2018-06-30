@@ -27,7 +27,8 @@ class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 	    	'email' => $object->getEmailAddress(),
 	        'name' => $object->getName(),
 	        'channels' => $channels,
-	        'uri_segment' => $object->getUriSegment()
+	        'uri_segment' => $object->getUriSegment(),
+	        'tester' => $object->isTester()
 	    );
 	}
 
@@ -68,6 +69,7 @@ class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 	    $object->setUriSegment($uriSegment);
         $object->setEmailAddress($data['email']);
         $object->setName($data['name']);
+        $object->isTester($data['tester']);
 		return $object;
 	}
 	

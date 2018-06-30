@@ -115,6 +115,18 @@ class SubscriberEntity implements Node\NodeInterface, Node\NodeCreatedInterface
         return $this->timestampCreated;
     }
     
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    protected $tester = false;
+    
+    public function isTester($boolean=null)
+    {
+        if ($boolean !== null)
+            $this->tester = (bool) $boolean;
+            return $this->tester;
+    }
+    
     
 	public function getNodeType()
 	{

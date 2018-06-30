@@ -36,6 +36,9 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
         $el = new Element\Text('uri_segment', array('label' => 'URI-Segment'));
         $el->setAttribute('placeholder', 'wird automatisch generiert, wenn leer...');
         $this->add($el);
+        
+        $el = new Element\Checkbox('tester', array('label' => 'Tester?'));
+        $this->add($el);
            
         
     }
@@ -70,6 +73,9 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
                 'filters' => array(
                     array('name' => 'alnum')
                 )
+            ),
+            'tester' => array(
+                'required' => false
             )
         );
     }

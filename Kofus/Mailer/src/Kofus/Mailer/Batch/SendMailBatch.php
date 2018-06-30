@@ -24,8 +24,10 @@ class SendMailBatch extends AbstractBatch
             foreach ($channels as $channel) {
                 print 'KANAL: ' . $channel . PHP_EOL . PHP_EOL;
                 $subscriptions = $this->nodes()->createQueryBuilder('SCP')
+                    ->leftJoin('Kofus\Mailer\Entity\SubscriberEntity', 's', 'WITH', 'n.subscriber = s')
                     ->where('n.channel = :channel')
                     ->setParameter('channel', $channel)
+                    ->orderBy('s.tester', 'DESC')
                     ->getQuery()->getResult();
                 
                 foreach ($subscriptions as $subscription) {
