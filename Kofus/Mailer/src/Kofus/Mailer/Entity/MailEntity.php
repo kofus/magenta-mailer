@@ -42,9 +42,39 @@ class MailEntity implements Node\NodeInterface, Node\NodeCreatedInterface
     }
     
     /**
+     * @ORM\Column()
+     */
+    protected $addressFrom;
+    
+    public function setAddressFrom($value)
+    {
+        $this->addressFrom = $value; return $this;
+    }
+    
+    public function getAddressFrom()
+    {
+        return $this->addressFrom;
+    }
+    
+    /**
+     * @ORM\Column(nullable=true)
+     */
+    protected $addressBcc;
+    
+    public function setAddressBcc($value)
+    {
+        $this->addressBcc = $value; return $this;
+    }
+    
+    public function getAddressBcc()
+    {
+        return $this->addressBcc;
+    }
+    
+    /**
      * @ORM\Column(type="boolean")
      */
-    protected $enabled = true;
+    protected $enabled = false;
     
     public function isEnabled($boolean=null)
     {

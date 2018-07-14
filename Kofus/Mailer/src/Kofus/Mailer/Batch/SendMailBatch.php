@@ -43,8 +43,11 @@ class SendMailBatch extends AbstractBatch
                     );
                     $msg = $this->mailer()->createHtmlMessage($viewParams, $subscriber->getMailerParams(), $mail->getTemplate());
                     $msg->addTo($subscriber->getEmailAddress());
-                    $msg->addBcc('log@kofus.de');
+                    if ($mail->getAddressBcc()) {
+                        $msg->addBcc($mail->getAddressBcc());
+                    }
                     $msg->setSubject($mail->getSubject());
+                    $msg->setFrom($mail->getAddressFrom());
                     
                     sleep(5);
                     $this->mailer()->send($msg);

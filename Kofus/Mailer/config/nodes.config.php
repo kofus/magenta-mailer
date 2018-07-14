@@ -39,6 +39,10 @@ return array(
                                 'class' => 'Kofus\Mailer\Form\Fieldset\Mail\MasterFieldset',
                                 'hydrator' => 'Kofus\Mailer\Form\Hydrator\Mail\MasterHydrator'
                             ),
+                            'addresses' => array(
+                                'class' => 'Kofus\Mailer\Form\Fieldset\Mail\AddressesFieldset',
+                                'hydrator' => 'Kofus\Mailer\Form\Hydrator\Mail\AddressesHydrator'
+                            ),
                             'dispatch' => array(
                                 'class' => 'Kofus\Mailer\Form\Fieldset\Mail\DispatchFieldset',
                                 'hydrator' => 'Kofus\Mailer\Form\Hydrator\Mail\DispatchHydrator'

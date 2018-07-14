@@ -6,15 +6,19 @@ use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 
-class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
+class AddressesHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 {
 	public function extract($object)
 	{
+	    $channelIds = array();
+	    
+	    foreach ($object->getChannels() as $channel)
+	        $channelIds[] = $channel->getNodeId();
+	    
 	    return array(
-	        'subject' => $object->getSubject(),
-	        'content_html' => $object->getContentHtml(),
-	        'template' => $object->getTemplate(),
-	        'system_id' => $object->getSystemId()
+	        'channels' => $channelIds,
+	        'from' => $object->getAddressFrom(),
+	        'bcc' => $object->getAddressBcc()
 	    );
 		
 		return $data;
@@ -22,10 +26,13 @@ class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 
 	public function hydrate(array $data, $object)
 	{
-	    $object->setSubject($data['subject']);
-       	$object->setContentHtml($data['content_html']);
-       	$object->setTemplate($data['template']);
-       	$object->setSystemId($data['system_id']);
+	    $channels = array();
+	    foreach ($data['channels'] as $channelId)
+	        $channels[] = $this->nodes()->getNode($channelId, 'NCH');
+	    
+	    $object->setChannels($channels);
+	    $object->setAddressFrom($data['from']);
+	    $object->setAddressBcc($data['bcc']);
        	
 		return $object;
 	}

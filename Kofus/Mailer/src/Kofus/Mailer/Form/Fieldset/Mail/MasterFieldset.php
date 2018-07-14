@@ -14,15 +14,6 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
     {
         $config = $this->getServiceLocator()->get('KofusConfig');
         
-        $channels = $this->nodes()->getRepository('NCH')->findBy(array(), array('title' => 'ASC'));
-        $valueOptions = array();
-        foreach ($channels as $channel)
-            $valueOptions[$channel->getNodeId()] = $channel->getTitle();
-        
-        $el = new Element\MultiCheckbox('channels', array('label' => 'Empfänger'));
-        $el->setValueOptions($valueOptions);
-        $this->add($el);
-        
         $el = new Element\Text('subject', array(
             'label' => 'Betreff'
         ));
@@ -53,9 +44,6 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
     public function getInputFilterSpecification()
     {
         $spec = array(
-            'channels' => array(
-                'required' => true
-            ),
             'subject' => array(
                 'required' => true,
                 'filters' => array(
