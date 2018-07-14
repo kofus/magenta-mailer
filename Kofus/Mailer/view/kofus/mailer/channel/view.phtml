@@ -50,6 +50,7 @@
         	<?php endforeach ?>
     	</tbody>
 	</table>
+	<?php echo $this->paginationControl($this->subscriptions) ?>
 <?php else : ?>
 	<p>Keine Einträge.</p>	
 <?php endif ?>
