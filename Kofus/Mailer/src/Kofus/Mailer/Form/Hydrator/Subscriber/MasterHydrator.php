@@ -11,11 +11,15 @@ class MasterHydrator implements HydratorInterface, ServiceLocatorAwareInterface
 {
 	public function extract($object)
 	{
-	    $subscriptions = $this->nodes()->createQueryBuilder('SCP')
-	       ->where('n.timestampActivation IS NOT NULL')
-	       ->andWhere('n.subscriber = :subscriber')
-	       ->setParameter('subscriber', $object)
-	       ->getQuery()->getResult();
+	    if ($object->getId()) {
+    	    $subscriptions = $this->nodes()->createQueryBuilder('SCP')
+    	       ->where('n.timestampActivation IS NOT NULL')
+    	       ->andWhere('n.subscriber = :subscriber')
+    	       ->setParameter('subscriber', $object)
+    	       ->getQuery()->getResult();
+	    } else {
+	        $subscriptions = array();
+	    }
 	    
         $channels = array();
         foreach ($subscriptions as $subscription) {
