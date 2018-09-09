@@ -34,4 +34,21 @@ class ChannelController extends AbstractActionController
             'subscriptions' => $this->paginator($qb)
         ));
     }
+    
+    public function csvAction()
+    {
+        $node = $this->nodes()->getNode($this->params('id'), 'NCH');
+        $subscriptions = $this->nodes()->createQueryBuilder('SCP')
+            ->where('n.channel = :channel')
+            ->setParameter('channel', $node)
+            ->getQuery()->getResult();
+        
+
+        foreach ($subscriptions as $subscription) {
+            $subscriber = $subscription->getSubscriber();
+            print $subscriber->getName() . ' (' . $subscriber->getNodeId() . ')<br>';
+        }
+        
+        exit();
+    }
 }

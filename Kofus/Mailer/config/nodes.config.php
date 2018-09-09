@@ -165,7 +165,18 @@ return array(
                             'params' => array(
                                 'id' => '{node_id}'
                             )
-                        )
+                        ),
+                        'csv' => array(
+                            'icon' => 'glyphicon glyphicon-export',
+                            'label' => 'CSV',
+                            'route' => 'kofus_mailer',
+                            'controller' => 'channel',
+                            'action' => 'csv',
+                            'params' => array(
+                                'id' => '{node_id}'
+                            )
+                        ),
+                        
                     ),
                     
                     
