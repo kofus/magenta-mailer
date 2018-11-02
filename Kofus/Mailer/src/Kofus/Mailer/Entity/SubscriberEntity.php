@@ -10,7 +10,7 @@ use Kofus\System\Node;
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="kofus_mailer_subscribers", uniqueConstraints={@ORM\UniqueConstraint(name="emailAddress", columns={"emailAddress"}), @ORM\UniqueConstraint(name="uriSegment", columns={"uriSegment"})})
+ * @ORM\Table(name="kofus_mailer_subscribers", uniqueConstraints={@ORM\UniqueConstraint(name="emailAddress", columns={"emailAddress"}), @ORM\UniqueConstraint(name="uriSegment", columns={"uriSegment"}), @ORM\UniqueConstraint(name="foreignId", columns={"foreignId"})})
  */
 class SubscriberEntity implements Node\NodeInterface, Node\NodeCreatedInterface
 {
@@ -54,6 +54,21 @@ class SubscriberEntity implements Node\NodeInterface, Node\NodeCreatedInterface
     public function getName()
     {
         return $this->name;
+    }
+    
+    /**
+     * @ORM\Column(nullable=true)
+     */
+    protected $foreignId;
+    
+    public function setForeignId($value)
+    {
+        $this->foreignId = $value; return $this;
+    }
+    
+    public function getForeignId()
+    {
+        return $this->foreignId;
     }
     
     
