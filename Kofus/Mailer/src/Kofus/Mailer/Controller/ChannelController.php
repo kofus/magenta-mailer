@@ -46,7 +46,8 @@ class ChannelController extends AbstractActionController
 
         foreach ($subscriptions as $subscription) {
             $subscriber = $subscription->getSubscriber();
-            print $subscriber->getName() . ' (' . $subscriber->getNodeId() . ')<br>';
+            print $subscriber->getName() . ' (' . $subscriber->getNodeId() . ') ';
+            print htmlentities('<' . $subscriber->getEmailAddress() . '>') . '<br>';
         }
         
         exit();
