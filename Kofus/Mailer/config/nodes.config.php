@@ -166,6 +166,15 @@ return array(
                                 'id' => '{node_id}'
                             )
                         ),
+                        'truncate' => array(
+                            'label' => 'Leeren',
+                            'route' => 'kofus_mailer',
+                            'controller' => 'channel',
+                            'action' => 'truncate',
+                            'params' => array(
+                                'id' => '{node_id}'
+                            )
+                        ),
                         'csv' => array(
                             'icon' => 'glyphicon glyphicon-export',
                             'label' => 'CSV',

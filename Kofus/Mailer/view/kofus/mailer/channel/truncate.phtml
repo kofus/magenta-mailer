@@ -1,0 +1,10 @@
+<h1>Abonnements löschen?</h1>
+<div class="jumbotron">
+	<p>Möchten Sie alle <?php echo count($this->subscriptions) ?> Abonnements des Kanals <b><?php echo $this->escapeHtml($this->channel) ?></b> jetzt löschen? Die assoziierten Abonnenten werden dabei nicht gelöscht.</p>
+	<a href="<?php echo $this->url('kofus_mailer', array('controller' => 'channel', 'action' => 'truncate', 'id' => $this->channel->getNodeId()), array('query' => array('confirm' => $this->token))) ?>" class="btn btn-danger">
+		Jetzt löschen
+	</a>
+	<a href="<?php echo $this->urlBack() ?>" class="btn btn-default">
+		Abbrechen
+	</a>
+</div>
