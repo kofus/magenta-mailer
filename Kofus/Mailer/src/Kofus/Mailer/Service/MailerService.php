@@ -274,7 +274,8 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
             throw new \Exception('Cannot send object of type ' . get_class($mixed));
         }
         
-        $transport = new \Zend\Mail\Transport\Sendmail();
+        $config = $this->config()->get('mailer.transport', array('type' => 'sendmail'));
+        $transport = \Zend\Mail\Transport\Factory::create($config);
         $transport->send($msg);
     }
     
