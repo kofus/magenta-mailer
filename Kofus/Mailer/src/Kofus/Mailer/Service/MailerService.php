@@ -52,7 +52,7 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
         return $html;
     }
     
-    protected function getPhpRenderer()
+    public function getPhpRenderer()
     {
         $renderer = new \Zend\View\Renderer\PhpRenderer();
         
@@ -164,47 +164,42 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
     public function createMail($key='default', $template=null, array $values=array(), array $params=array())
     {
         $config = $this->config()->get('mailer.message.' . $key);
-        if (! $config)
-            throw new \Exception('Mail message "'.$key.'" not found in config');
-            
-            if (! isset($config['class']))
-                throw new \Exception('No class specification found for mail message "'.$key.'"');
+        if (! $config) throw new \Exception('Mail message "'.$key.'" not found in config');
+        if (! isset($config['class'])) throw new \Exception('No class specification found for mail message "'.$key.'"');
                 
-                // Create class
-                $classname = $config['class'];
-                $mail = new $classname();
-                if (! $mail instanceof \Kofus\Mailer\Mail\MailInterface)
-                    throw new \Exception($classname . ' must implement MailInterface');
+        // Create class
+        $classname = $config['class'];
+        $mail = new $classname();
+        if (! $mail instanceof \Kofus\Mailer\Mail\MailInterface) throw new \Exception($classname . ' must implement MailInterface');
+            
+        // Merge values
+        if ($this->config()->get('mailer.values')) $values = array_merge($this->config()->get('mailer.values'), $values);
+        if (isset($config['values']))
+            $values = array_merge($config['values'], $values);
+            $mail->setValues($values);
+            
+            // Merge params
+            if ($this->config()->get('mailer.params'))
+                $params = array_merge($this->config()->get('mailer.params'), $params);
+                if (isset($config['params']))
+                    $params = array_merge($config['params'], $params);
+                    $mail->setParams($params);
                     
-                    // Merge values
-                    if ($this->config()->get('mailer.values'))
-                        $values = array_merge($this->config()->get('mailer.values'), $values);
-                        if (isset($config['values']))
-                            $values = array_merge($config['values'], $values);
-                            $mail->setValues($values);
+                    // Template
+                    if (! $template && isset($config['template']))
+                        $template = $config['template'];
+                        if ($template) {
+                            $templateNode = $this->nodes()->getNode($template, 'MTMPL');
+                            if (! $templateNode)
+                                throw new \Exception('Mail template "'.$template.'" not found');
+                                $mail->setTemplate($templateNode);
+                        }
+                        
+                        // ServiceLocator?
+                        if ($mail instanceof ServiceLocatorAwareInterface)
+                            $mail->setServiceLocator($this->getServiceLocator());
                             
-                            // Merge params
-                            if ($this->config()->get('mailer.params'))
-                                $params = array_merge($this->config()->get('mailer.params'), $params);
-                                if (isset($config['params']))
-                                    $params = array_merge($config['params'], $params);
-                                    $mail->setParams($params);
-                                    
-                                    // Template
-                                    if (! $template && isset($config['template']))
-                                        $template = $config['template'];
-                                        if ($template) {
-                                            $templateNode = $this->nodes()->getNode($template, 'MTMPL');
-                                            if (! $templateNode)
-                                                throw new \Exception('Mail template "'.$template.'" not found');
-                                                $mail->setTemplate($templateNode);
-                                        }
-                                        
-                                        // ServiceLocator?
-                                        if ($mail instanceof ServiceLocatorAwareInterface)
-                                            $mail->setServiceLocator($this->getServiceLocator());
-                                            
-                                            return $mail;
+                            return $mail;
     }
     
     public function createHtmlMessage(array $viewParams=array(), array $tokens=array(), $layout='default')
@@ -274,34 +269,16 @@ class MailerService extends AbstractService implements EventManagerAwareInterfac
             throw new \Exception('Cannot send object of type ' . get_class($mixed));
         }
         
+        if (count($msg->getFrom()) == 0) {
+            $msg->setFrom($this->config()->get('mailer.addresses.From'));
+        }
+        
         $config = $this->config()->get('mailer.transport', array('type' => 'sendmail'));
         $transport = \Zend\Mail\Transport\Factory::create($config);
         $transport->send($msg);
     }
     
-    public function ____enqueue(\Zend\Mail\Message $msg, \DateTime $scheduled=null, $entity=null)
-    {
-        if (! $entity)
-            $entity = new \Kofus\Mailer\Entity\MailEntity();
-        $entity->setEncoding($msg->getEncoding());
-        $entity->setSubject($msg->getSubject());
-        $entity->setHeaders($msg->getHeaders());
-        $entity->setBody($msg->getBody());
-        $entity->setBodyText($msg->getBodyText());
-        $entity->setTimestampCreated(new \DateTime());
-        
-        
-        if ($scheduled) {
-            $entity->setTimestampScheduled($scheduled);
-        } else {
-            $entity->setTimestampSent(new \DateTime());
-            $this->send($entity);
-        }
-        
-        $this->em()->persist($entity);
-        $this->em()->flush();
-        return $entity;
-    }
+    
     
     /**
      * Count activated subscriptions for channel or subscriber

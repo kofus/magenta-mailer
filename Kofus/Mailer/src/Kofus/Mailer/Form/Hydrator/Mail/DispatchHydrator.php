@@ -10,25 +10,23 @@ class DispatchHydrator implements HydratorInterface, ServiceLocatorAwareInterfac
 {
 	public function extract($object)
 	{
-	    $dt = $object->getTimestampScheduled();
-	    if (! $dt) {
-	        $dt = \DateTime::createFromFormat('Y-m-d H:i', date('Y-m-d H') . ':00');
-	        $dt->modify('+2 hour');
-	    }
+	    $dt = array('year' => null, 'month' => null, 'day' => null, 'hour' => null, 'minute' => null);
+	    if ($object->getTimestampScheduled()) $dt =  $object->getTimestampScheduled()->format('Y-m-d H:i');
 	    
 	    return array(
-	        'timestamp_scheduled' => $dt->format('Y-m-d H:i'),
+	        'timestamp_scheduled' => $dt,
 	        'enabled' => $object->isEnabled()
 	    );
 		
-		return $data;
 	}
 
 	public function hydrate(array $data, $object)
 	{
 	    $dt = null;
-	    if (isset($data['timestamp_scheduled'])) {
-	        $dt = \DateTime::createFromFormat('Y-m-d H:i:s', $data['timestamp_scheduled']);
+	    $t = $data['timestamp_scheduled'];
+	    
+	    if ($t['day'] && $t['month'] && $t['year']) {
+	        $dt = \DateTime::createFromFormat('Y-m-d H:i', $t['year'] . '-' . $t['month'] . '-' . $t['day'] . ' ' . $t['hour'] . ':' . $t['minute']);
 	        $object->setTimestampSent(null);
 	    }
 	    

@@ -12,14 +12,15 @@ class DispatchFieldset extends Fieldset implements InputFilterProviderInterface,
 
     public function init()
     {
-        $this->setLabel('Versandeinstellungen');
+        //$this->setLabel('Versandeinstellungen');
         
         $el = new Element\DateTimeSelect('timestamp_scheduled', array(
-            'label' => 'Versand geplant'
+            'label' => 'Scheduled'
         ));
+        $el->setShouldCreateEmptyOption(true);
         $this->add($el);
         
-        $el = new Element\Checkbox('enabled', array('label' => 'Freigegeben?'));
+        $el = new Element\Checkbox('enabled', array('label' => 'enabled?'));
         $this->add($el);
         
         
@@ -27,10 +28,9 @@ class DispatchFieldset extends Fieldset implements InputFilterProviderInterface,
 
     public function getInputFilterSpecification()
     {
-        $spec = array(
-           
+        return array(
+            'timestamp_scheduled' => array('required' => false, array('filters' => array('name' => 'tonull')))
         );
-        return $spec;
     }
 
     protected $sm;

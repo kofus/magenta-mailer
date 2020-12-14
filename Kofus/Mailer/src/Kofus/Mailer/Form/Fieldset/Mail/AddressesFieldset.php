@@ -19,7 +19,7 @@ class AddressesFieldset extends Fieldset implements InputFilterProviderInterface
         foreach ($channels as $channel)
             $valueOptions[$channel->getNodeId()] = $channel->getTitle();
         
-        $el = new Element\MultiCheckbox('channels', array('label' => 'An'));
+        $el = new Element\MultiCheckbox('channels', array('label' => 'To'));
         $el->setValueOptions($valueOptions);
         $this->add($el);
         
@@ -27,11 +27,11 @@ class AddressesFieldset extends Fieldset implements InputFilterProviderInterface
         foreach ($config->get('mailer.addresses') as $address)
             $addresses[$address->toString()] = $address->toString();
         
-        $el = new Element\Select('from', array('label' => 'Von'));
+        $el = new Element\Select('from', array('label' => 'From'));
         $el->setValueOptions($addresses);
         $this->add($el);
         
-        $el = new Element\Select('bcc', array('label' => 'In Blindkopie an'));
+        $el = new Element\Select('bcc', array('label' => 'BCC'));
         $el->setEmptyOption('');
         $el->setValueOptions($addresses);
         $this->add($el);
@@ -43,7 +43,7 @@ class AddressesFieldset extends Fieldset implements InputFilterProviderInterface
     {
         $spec = array(
             'channels' => array(
-                'required' => true
+                'required' => false
             ),
             'bcc' => array(
                 'required' => false

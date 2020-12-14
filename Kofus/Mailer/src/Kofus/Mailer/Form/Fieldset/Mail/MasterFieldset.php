@@ -15,12 +15,12 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
         $config = $this->getServiceLocator()->get('KofusConfig');
         
         $el = new Element\Text('subject', array(
-            'label' => 'Betreff'
+            'label' => 'Subject'
         ));
         $this->add($el);
         
         $el = new Element\Textarea('content_html', array(
-            'label' => 'Inhalt (HTML)'
+            'label' => 'Content (HTML)'
         ));
         $el->setAttribute('class', 'ckeditor');
         $this->add($el);
@@ -30,13 +30,13 @@ class MasterFieldset extends Fieldset implements InputFilterProviderInterface, S
             $valueOptions[$template] = $template;
         
         $el = new Element\Select('template', array(
-            'label' => 'Template'
+            'label' => 'Layout'
         ));
         $el->setValueOptions($valueOptions);
         $this->add($el);
         
         $el = new Element\Text('system_id', array(
-            'label' => 'System-ID'
+            'label' => 'System ID'
         ));
         $this->add($el);
     }

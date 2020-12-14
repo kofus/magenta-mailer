@@ -12,8 +12,8 @@ return array(
         ),
         'available' => array(
             'ML' => array(
-                'label' => 'Nachricht',
-                'label_pl' => 'Nachrichten',
+                'label' => 'Message Template',
+                'label_pl' => 'Message Templates',
                 'entity' => 'Kofus\Mailer\Entity\MailEntity',
                 'controllers' => array(
                     'Kofus\Mailer\Controller\Mail'

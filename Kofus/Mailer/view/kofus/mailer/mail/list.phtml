@@ -4,10 +4,10 @@
     <table class="table _table-hover">
         <thead>
             <tr>
-                <th>Betreff</th>
-                <th>Empfänger</th>
-                <th>Geplant</th>
-                <th>Abgeschlossen</th>
+                <th>Subject</th>
+                <th>To</th>
+                <th>Scheduled</th>
+                <th>Completed</th>
             </tr>
         </thead>
         <tbody >
@@ -45,17 +45,17 @@
                     		<ul class="dropdown-menu">
                     			<li>
                     				<a href="<?php echo $this->url('kofus_system', array('controller' => 'node', 'action' => 'edit', 'id' => $entity->getNodeId())) ?>">
-                    					Bearbeiten
+                    					Edit
                     				</a>
                     			</li>
                     			<li>
                     				<a href="<?php echo $this->url('kofus_mailer', array('controller' => 'mail', 'action' => 'reset', 'id' => $entity->getNodeId())) ?>">
-                    					Zurücksetzen
+                    					Reset
                     				</a>
                     			</li>
                     			<li>
                     				<a href="<?php echo $this->url('kofus_system', array('controller' => 'node', 'action' => 'delete', 'id' => $entity->getNodeId())) ?>">
-                    					Löschen
+                    					Delete
                     				</a>
                     			</li>
                     		</ul>
