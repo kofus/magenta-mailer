@@ -7,7 +7,7 @@ class SendMailBatch extends AbstractBatch
     public function run()
     {
         date_default_timezone_set('Europe/Berlin');
-        $now = \DateTime::createFromFormat('U', REQUEST_TIME);
+        $now = \DateTime::createFromFormat('Y-m-d H:i:s', REQUEST_TIME);
         
         $mails = $this->nodes()->createQueryBuilder('ML')
             ->where('n.enabled = true')
